@@ -1,4 +1,4 @@
 UI_EN = {
-
+    UI_PZNS_Button_Tooltip = "PZNS UI"
 }
 
