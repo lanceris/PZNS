@@ -15,11 +15,7 @@ end
 function view:create()
     PZNS_UIView.create(self)
 
-    self.toolsRow = PZNS.UI.ToolsRow:new(0, 0, self.width, 24, self.data)
-    self.toolsRow:initialise()
-    self.toolsRow:setVisible(false)
-
-    self.tableList = ISScrollingListBox:new(0, self.toolsRow:getBottom(), self.width, self.height - self.toolsRow.height)
+    self.tableList = ISScrollingListBox:new(0, 0, self.width, self.height - self.toolsRow.height)
     self.tableList.backgroundColor.a = 0
     self.tableList:initialise()
     self.tableList:instantiate()
@@ -31,14 +27,14 @@ function view:create()
     self.tableList:addColumn("Name", 0)
     self.tableList:addColumn("Relations", self.width - 24,
         { texture = self.tex, size = 24 })
-    self.tableList:setVisible(false)
+    self.tableList:setVisible(true)
     self.tableList.itemheight = math.max(24, self.tableList.fontHgt + (self.tableList.itemPadY or 0) * 2)
     self.tableList:setY(self.tableList.y + self.tableList.itemheight)
     self.tableList:setHeight(self.tableList.height - self.tableList.itemheight)
     self.tableList:setAnchorBottom(true)
     self.tableList:setAnchorRight(true)
 
-    self.tableDetail = ISScrollingListBox:new(0, self.toolsRow:getBottom(), self.width,
+    self.tableDetail = ISScrollingListBox:new(0, 0, self.width,
         self.height - self.toolsRow.height)
     self.tableDetail.backgroundColor.a = 0
     self.tableDetail:initialise()
@@ -58,9 +54,8 @@ function view:create()
     self.tableDetail:setY(self.tableDetail.y + self.tableDetail.itemheight)
     self.tableDetail:setAnchorBottom(true)
 
-    self:addChild(self.toolsRow)
-    self:addChild(self.tableList)
-    self:addChild(self.tableDetail)
+    self.container:addChild(self.tableList)
+    self.container:addChild(self.tableDetail)
 end
 
 function view:doDrawItemList(y, item, alt)

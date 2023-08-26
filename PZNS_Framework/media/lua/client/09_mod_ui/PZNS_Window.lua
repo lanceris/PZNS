@@ -21,6 +21,7 @@ function PZNS_Window:createChildren()
     self.header:initialise()
     self.header:setAnchorRight(true)
     self.header:setVisible(true)
+    self.header.buttons = {}
     self:addChild(self.header)
 
     local buttons = { "settings", "npc", "group", "faction", "work", "zone" }
@@ -28,8 +29,7 @@ function PZNS_Window:createChildren()
         x = 0,
         y = self.tbh + self.headerH,
         w = self.width,
-        h = self.height - self.tbh - self.headerH - self.rh,
-        btnX = 0
+        h = self.height - self.tbh - self.headerH - self.rh
     }
 
     for i = 1, #buttons do
@@ -53,18 +53,6 @@ end
 -- endregion
 
 -- region logic
-function PZNS_Window.setVisibleSubView(view, visible, joypadData)
-    ISPanelJoypad.setVisible(view, visible, joypadData)
-    if view.toolsRow then
-        view.toolsRow:setVisible(visible)
-    end
-    if view.tableList then
-        view.tableList:setVisible(visible)
-    end
-    if view.tableDetail and false then
-        view.tableDetail:setVisible(visible)
-    end
-end
 
 function PZNS_Window:addView(name, viewArgs)
     local viewData = PZNS.UI.viewData[name]
@@ -74,9 +62,9 @@ function PZNS_Window:addView(name, viewArgs)
     viewArgs.type = name
     viewArgs.data = viewData.data or { name = name }
     local view = viewData.class:new(viewArgs)
-    view.setVisible = self.setVisibleSubView
 
-    local button = ISButton:new(viewArgs.btnX, 0, 24, 24, "", self, self.onViewButtonMouseDown)
+    local btnX = #self.header.buttons * 24 or 0
+    local button = ISButton:new(btnX, 0, 24, 24, "", self, self.onViewButtonMouseDown)
     button.internal = name
     button.viewName = name
     button.windowTitle = viewData.title
@@ -84,8 +72,8 @@ function PZNS_Window:addView(name, viewArgs)
     button.image = viewData.btnTexure
     button:initialise()
     button:setVisible(true)
+    table.insert(self.header.buttons, name)
     self.header:addChild(button)
-    viewArgs.btnX = viewArgs.btnX + 24
 
     view:initialise()
     view:setVisible(false)
@@ -178,5 +166,6 @@ function PZNS_Window:new(args)
     o.minimumHeight = 300
 
     o.state = {}
+    -- o:setWantKeyEvents(true)
     return o
 end

@@ -21,8 +21,9 @@ function class:create()
     self.backButton:initialise()
     self.backButton:setImage(self.textures.back)
     self.backButton:setVisible(true)
+    self.backButton.onRightMouseDown = self.backButtonOnRightMouseDown
 
-    self.searchBar = ISTextEntryBox:new('', self.backButton:getRight(), 0, 100, 24)
+    self.searchBar = ISTextEntryBox:new('', self.backButton:getRight(), 0, 24 * 5, 24)
     self.searchBar.font = UIFont.Small -- TODO: move to options
     self.searchBar:setTooltip(self.searchBarTooltip)
     self.searchBar:setAnchorRight(true)
@@ -36,7 +37,6 @@ function class:create()
     self.searchBar.onTextChange = self.onTextChange
     self.searchBar.onOtherKey = class.onOtherKey
     self.searchBar.onRightMouseDown = self.onRightMouseDown
-    self.searchBar:setVisible(false)
 
 
     self.selector = ISComboBox:new(0, 0, 200, 24, self)
@@ -123,6 +123,15 @@ function class:doDrawItemSelectorPopup(y, item, alt)
     return y
 end
 
+function class:prerender()
+    if self.background then
+        self:drawRectStatic(0, 0, self.width, self.height, self.backgroundColor.a, self.backgroundColor.r,
+            self.backgroundColor.g, self.backgroundColor.b);
+    end
+    self:drawRectBorderStatic(0, 0, self.width, self.height, self.borderColor.a, self.borderColor.r, self.borderColor.g,
+        self.borderColor.b)
+end
+
 -- endregion
 
 -- region logic
@@ -142,6 +151,16 @@ end
 
 function class:onButtonMouseDown(button, x, y)
 
+end
+
+function class:backButtonOnRightMouseDown(x, y)
+    local context = ISContextMenu.get(0, getMouseX() + 10, getMouseY())
+    local history = PZNS.UI.windowCaretaker:getHistory()
+    if not history then return end
+
+    for i = #history, 1, -1 do
+        context:addOption(history[i], self, PZNS_UIView.backTo, i)
+    end
 end
 
 ---Parses the query string with optional list of delimiters
@@ -299,7 +318,7 @@ function class:new(x, y, w, h, args)
     o.onCommandEnteredSB = o.args.onCommandEntered
     -- o.onRightMouseDownSB = onRightMouseDown
     o.searchBarTooltip = o.args.searchBarTooltip or string.sub(getText('IGUI_CraftUI_Name_Filter'), 1, -2)
-    o.backgroundColor = { r = 0, g = 0, b = 0, a = 0 }
+    o.borderColor = { r = 0.4, g = 0.4, b = 0.4, a = 1 }
     o.onBackButtonDown = args.onBackButtonDown
 
     o.textures = PZNS.UI.textures.tools

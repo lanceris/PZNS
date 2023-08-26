@@ -7,7 +7,7 @@ function PZNS.UI.initWindow()
 
     PZNS.UI.mainWindow = PZNS_Window:new(args)
     PZNS.UI.mainWindow:initialise()
-    PZNS.UI.mainButton:setVisible(true)
+    PZNS.UI.mainWindow:setVisible(false)
     PZNS.UI.windowCaretaker = utils.Caretaker:new(PZNS.UI.mainWindow)
 end
 
