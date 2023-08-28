@@ -1,7 +1,4 @@
 local PZNS_DebuggerUtils = require("02_mod_utils/PZNS_DebuggerUtils");
-local PZNS_UtilsDataGroups = require("02_mod_utils/PZNS_UtilsDataGroups");
-local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
-local PZNS_UtilsDataZones = require("02_mod_utils/PZNS_UtilsDataZones");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils");
 local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager");
@@ -108,7 +105,7 @@ end
 
 ---comment
 ---@param targetSquare any
-local function spawnZombieAtSquare(targetSquare)
+local function spawnZombieAtSquare(_, targetSquare)
     local squareX = targetSquare:getX();
     local squareY = targetSquare:getY();
     local squareZ = targetSquare:getZ();
@@ -147,14 +144,11 @@ local PZNS_DebugBuild = {
     SpawnTools = addToolsToLocalPlayer,
 };
 
-PZNS_ContextMenu = PZNS_ContextMenu or {}
-PZNS_ContextMenu.Debug = PZNS_ContextMenu.Debug or {}
-
 --- Cows: mpPlayerID is a placeholder, it doesn't do anything.
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS_ContextMenu.Debug.BuildOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.Debug.BuildOptions(mpPlayerID, context, worldobjects)
     --
     local submenu_1 = context:getNew(context);
     local submenu_1_Option = context:addOption(
@@ -178,15 +172,28 @@ function PZNS_ContextMenu.Debug.BuildOptions(mpPlayerID, context, worldobjects)
 end
 
 -- Cows: Respawn Christ Tester
-local function respawnChristTester()
-    PZNS_DeleteChrisTester(0);
-    PZNS_SpawnChrisTester();
+---@param mpPlayerID integer player num
+---@param square? IsoGridSquare square to spawn NPC at
+local function respawnChristTester(mpPlayerID, square)
+    PZNS_DeleteChrisTester();
+    PZNS_SpawnChrisTester(mpPlayerID, square);
 end
 
 -- Cows: Respawn Jill Tester
-local function respawnJillTester()
-    PZNS_DeleteJillTester(0)
-    PZNS_SpawnJillTester();
+---@param mpPlayerID integer player num
+---@param square? IsoGridSquare square to spawn NPC at
+local function respawnJillTester(mpPlayerID, square)
+    PZNS_DeleteJillTester()
+    PZNS_SpawnJillTester(mpPlayerID, square);
+end
+
+local function removeNPCsAndData()
+    local cnt = 0
+    for survID, _ in pairs(PZNS.Core.NPC.registry) do
+        PZNS_NPCsManager.deleteActiveNPCBySurvivorID(survID)
+        cnt = cnt + 1
+    end
+    print(string.format("Removed %s NPCs from world", cnt))
 end
 
 --
@@ -217,7 +224,7 @@ local PZNS_DebugWorld = {
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS_ContextMenu.Debug.WorldOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.Debug.WorldOptions(mpPlayerID, context, worldobjects)
     local submenu_1 = context:getNew(context);
     local submenu_1_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_Debug_World"),
@@ -233,7 +240,7 @@ function PZNS_ContextMenu.Debug.WorldOptions(mpPlayerID, context, worldobjects)
             if (debugKey == "SpawnRaider" or debugKey == "SpawnNPCSurvivor") then
                 PZNS_DebugWorld[debugKey](square, nil);
             else
-                PZNS_DebugWorld[debugKey](square);
+                PZNS_DebugWorld[debugKey](mpPlayerID, square);
             end
         end
         --
@@ -249,22 +256,25 @@ end
 local PZNS_DebugWipeText = {
     WipeNPCs = getText("ContextMenu_PZNS_Wipe_NPC_Data"),
     WipeGroups = getText("ContextMenu_PZNS_Wipe_Groups_Data"),
+    WipeFactions = getText("ContextMenu_PZNS_Wipe_Factions_Data"),
     WipeZones = getText("ContextMenu_PZNS_Wipe_Zones_Data"),
-    WipeAll = getText("ContextMenu_PZNS_Wipe_All_Data")
+    WipeAll = getText("ContextMenu_PZNS_Wipe_All_Data"),
+    WipeNPCAndData = getText("ContextMenu_PZNS_Wipe_NPC_And_Data")
 };
 ---
 local PZNS_DebugWipe = {
-    WipeNPCs = PZNS_UtilsDataNPCs.PZNS_ClearNPCModData,
-    WipeGroups = PZNS_UtilsDataGroups.PZNS_ClearGroupsModData,
-    WipeZones = PZNS_UtilsDataZones.PZNS_ClearZonesData,
-    WipeAll = PZNS_DebuggerUtils.PZNS_WipeAllData
+    WipeNPCs = "npc",
+    WipeGroups = "group",
+    WipeFactions = "faction",
+    WipeZones = "zone",
+    WipeAll = "all",
 };
 
 --- Cows: mpPlayerID is a placeholder, it doesn't do anything.
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS_ContextMenu.Debug.WipeOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.Debug.WipeOptions(mpPlayerID, context, worldobjects)
     local submenu_1 = context:getNew(context);
     local submenu_1_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_Debug_WipeData"),
@@ -273,9 +283,14 @@ function PZNS_ContextMenu.Debug.WipeOptions(mpPlayerID, context, worldobjects)
     );
     context:addSubMenu(submenu_1_Option, submenu_1);
     --
+    local funcs = { WipeNPCAndData = removeNPCsAndData }
     for debugKey, debugText in pairs(PZNS_DebugWipeText) do
         local callbackFunction = function()
-            PZNS_DebugWipe[debugKey]();
+            if funcs[debugKey] then
+                funcs[debugKey]()
+            else
+                PZNS.Core.clearModData(PZNS_DebugWipe[debugKey]);
+            end
         end
         --
         submenu_1:addOption(

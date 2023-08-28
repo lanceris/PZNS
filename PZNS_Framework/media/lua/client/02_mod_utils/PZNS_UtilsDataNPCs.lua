@@ -2,7 +2,7 @@
     Cows: This file is intended for ALL functions related to the creation, deletion, load,
     and editing of all NPC mod file data and moddata.
 --]]
-PZNS_ActiveNPCs = {}; -- WIP - Cows: Need to rethink how Global variables are used...
+require("00_references/init")
 -- Cows: This variable should never be referenced directly, but through the corresponding management functions.
 local PZNS_UtilsDataNPCs = {};
 
@@ -17,9 +17,8 @@ end
 --- Cows: This is because objects cannot be saved to moddata, and everything must be reloaded whenever the game starts.
 function PZNS_UtilsDataNPCs.PZNS_InitLoadNPCsData()
     --
-    if (PZNS_ActiveNPCs) then
-        --
-        for npcSurvivorID, npcSurvivor in pairs(PZNS_ActiveNPCs) do
+    for npcSurvivorID, npcSurvivor in pairs(PZNS.Core.NPC.registry) do
+        if npcSurvivor.isPlayer == false then
             local npcFileName = PZNS_UtilsDataNPCs.PZNS_GetGameSaveDir() .. tostring(npcSurvivorID);
             local isSaveFileValid = fileExists(npcFileName);
             -- Cows: Check if SaveFile is valid
@@ -29,7 +28,7 @@ function PZNS_UtilsDataNPCs.PZNS_InitLoadNPCsData()
                     PZNS_UtilsDataNPCs.PZNS_SpawnNPCFromModData(npcSurvivor);
                 end
             else -- Cows: Else assume the save file was manually deleted and clear it from the moddata table.
-                PZNS_ActiveNPCs[npcSurvivorID] = nil;
+                PZNS.Core.NPC.registry[npcSurvivorID] = nil;
             end
         end
     end
@@ -75,6 +74,8 @@ end
 --- Cows: Save NPC data to moddata and save folder data.
 --- Cows: Currently using the Java API for IsoPlayer:save() to save the data to the zomboid/sandbox/save/<folder>
 --- https://projectzomboid.com/modding/zombie/characters/IsoPlayer.html#save()
+---@param npcSurvivorID survivorID
+---@param npcSurvivor NPC
 function PZNS_UtilsDataNPCs.PZNS_SaveNPCData(npcSurvivorID, npcSurvivor)
     if (npcSurvivor == nil) then
         return nil;
@@ -98,12 +99,12 @@ function PZNS_UtilsDataNPCs.PZNS_SaveNPCData(npcSurvivorID, npcSurvivor)
         end
     end
     -- Moddata Saving
-    PZNS_ActiveNPCs[npcSurvivorID] = npcSurvivor;
+    PZNS.Core.NPC.registry[npcSurvivorID] = npcSurvivor;
 end
 
 --- Cows: Save ALL ActiveNPCs Data
 function PZNS_UtilsDataNPCs.PZNS_SaveAllNPCData()
-    for npcSurvivorID, npcSurvivor in pairs(PZNS_ActiveNPCs) do
+    for npcSurvivorID, npcSurvivor in pairs(PZNS.Core.NPC.registry) do
         -- Cows: Reassign nil to true; always save NPCs unless explicitly false.
         if (npcSurvivor.canSaveData == nil) then
             npcSurvivor.canSaveData = true;
@@ -154,8 +155,8 @@ end
 ---Cows: Helper function for removing specified npc moddata and save file.
 ---@param npcSurvivor any
 function PZNS_UtilsDataNPCs.PZNS_RemoveNPCSaveData(npcSurvivor)
-    if (npcSurvivor ~= nil) then
-        PZNS_ActiveNPCs[npcSurvivor.survivorID] = nil;
+    if (npcSurvivor ~= nil) and npcSurvivor.isPlayer == false then
+        PZNS.Core.NPC.registry[npcSurvivor.survivorID] = nil;
         local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
         if (npcIsoPlayer ~= nil) then
             npcIsoPlayer:removeSaveFile();
@@ -164,9 +165,9 @@ function PZNS_UtilsDataNPCs.PZNS_RemoveNPCSaveData(npcSurvivor)
 end
 
 --- Cows: This will wipe the NPC moddata
+---@deprecated
 function PZNS_UtilsDataNPCs.PZNS_ClearNPCModData()
-    PZNS_ActiveNPCs = {};
-    ModData.remove("PZNS_ActiveNPCs");
+    PZNS.Core.clearModData("npc")
 end
 
 --- WIP - UNUSED CURRENTLY - Cows: Check if the NPC save file exists in the game save directory.
@@ -178,10 +179,10 @@ end
 --- WIP - UNUSED CURRENTLY - Cows: Called to clean up PZNS_ActiveNPCs moddata if save file doesn't exist for the NPC.
 --- Cows: May be useless, because clean up is already done in PZNS_InitLoadNPCsData()
 function PZNS_UtilsDataNPCs.PZNS_RemoveAllNPCsWithoutSaveFile()
-    for npcSurvivorID, npcSurvivor in pairs(PZNS_ActiveNPCs) do
+    for npcSurvivorID, npcSurvivor in pairs(PZNS.Core.NPC.registry) do
         local isFileExists = PZNS_UtilsDataNPCs.PZNS_CheckIfSaveFileExists(npcSurvivorID);
-        if (isFileExists == false) then
-            PZNS_ActiveNPCs[npcSurvivorID] = nil;
+        if (isFileExists == false) and npcSurvivor.isPlayer == false then
+            PZNS.Core.NPC.registry[npcSurvivorID] = nil
         end
     end
 end

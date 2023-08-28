@@ -1,8 +1,5 @@
-local PZNS_UtilsDataZones = require("02_mod_utils/PZNS_UtilsDataZones");
 local PZNS_UtilsZones = require("02_mod_utils/PZNS_UtilsZones");
 local PZNS_NPCZonesManager = require("04_data_management/PZNS_NPCZonesManager");
-
-PZNS_ContextMenu = PZNS_ContextMenu or {}
 
 local contextMenu_ZoneControlsText = {
     CreateZone = getText("ContextMenu_PZNS_Create_Zone"),
@@ -20,7 +17,7 @@ local currentZoneKey = "";
 ---@param controlKey any
 ---@param groupID any
 local function PZNS_CreateZoneTypesMenu(parentContextMenu, controlKey, groupID)
-    local activeZones = PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData();
+    local activeZones = PZNS.Core.Zone.registry
     --
     for zoneKey, zoneName in pairs(PZNS_ZonesText) do
         local groupZoneID = groupID .. "_" .. zoneKey;
@@ -70,7 +67,7 @@ end
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS_ContextMenu.ZonesOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.ZonesOptions(mpPlayerID, context, worldobjects)
     local playerGroupID = "Player" .. mpPlayerID .. "Group";
     --
     local zonesSubMenu_1 = context:getNew(context);

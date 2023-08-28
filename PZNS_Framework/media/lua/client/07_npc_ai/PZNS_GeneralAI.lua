@@ -1,5 +1,4 @@
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
-local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_WorldUtils = require("02_mod_utils/PZNS_WorldUtils");
 
 --[[
@@ -217,7 +216,7 @@ function PZNS_GeneralAI.PZNS_CheckForThreats(npcSurvivor)
     end
     -- Cows: Other NPCs list
     if (PZNS_CellNPCsList ~= nil) then
-        local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+        local activeNPCs = PZNS.Core.NPC.registry
         for npcID, targetIsoPlayer in pairs(PZNS_CellNPCsList) do
             local targetNPCSurvivor = activeNPCs[npcID];
             local isNPCHostileToTargetNPC = PZNS_GeneralAI.PZNS_IsNPCHostileToTargetNPC(npcSurvivor, targetNPCSurvivor);

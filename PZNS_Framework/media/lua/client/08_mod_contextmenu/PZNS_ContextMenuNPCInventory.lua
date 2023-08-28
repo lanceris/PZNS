@@ -4,8 +4,6 @@ local PZNS_WorldUtils = require("02_mod_utils/PZNS_WorldUtils");
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
 local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager");
 
-PZNS_ContextMenu = PZNS_ContextMenu or {}
-
 ---Cows: Checks the distance between the playerSurvivor and the npc
 local function PZNS_CheckDistToNPCInventory()
     if PZNS_ActiveInventoryNPC == nil then
@@ -42,7 +40,7 @@ end
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS_ContextMenu.NPCInventoryOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.NPCInventoryOptions(mpPlayerID, context, worldobjects)
     local inventorySubMenu_1 = context:getNew(context);
     local inventorySubMenu_1_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_Inventory"),
@@ -53,7 +51,7 @@ function PZNS_ContextMenu.NPCInventoryOptions(mpPlayerID, context, worldobjects)
     --
     local playerSurvivor = getSpecificPlayer(mpPlayerID);
     local playerGroupID = "Player" .. tostring(mpPlayerID) .. "Group";
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     local groupMembers = PZNS_NPCGroupsManager.getGroupByID(playerGroupID);
     --
     if (groupMembers == nil) then

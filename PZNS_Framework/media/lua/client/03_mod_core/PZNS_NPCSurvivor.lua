@@ -1,25 +1,66 @@
-PZNS_NPCSurvivor = {};
-PZNS_NPCSurvivor.__index = PZNS_NPCSurvivor;
+require("00_references/init")
+
+---@class NPC
+---@field survivorID survivorID
+---@field survivorName string
+---@field survivorNickname string?
+---@field groupID groupID?
+---@field factionID factionID?
+---@field affection integer
+---@field isPlayer boolean
+---@field isForcedMoving boolean
+---@field isHoldingInPlace boolean
+---@field isMeleeOnly boolean
+---@field isRaider boolean
+---@field isSavedInWorld boolean
+---@field courage integer
+---@field jobName string
+---@field jobSquare IsoGridSquare?
+---@field isJobRefreshed boolean
+---@field currentAction string
+---@field isStuckTicks integer
+---@field followTargetID survivorID
+---@field speechTable table?
+---@field lastEquippedMeleeWeapon string
+---@field lastEquippedRangeWeapon string
+---@field idleTicks integer
+---@field actionTicks integer
+---@field attackTicks integer
+---@field speechTicks integer
+---@field aimTarget survivorID
+---@field canAttack boolean
+---@field canSaveData boolean
+---@field textObject table
+---IsoPlayer Spawning Related fields
+---@field isAlive boolean
+---@field isSpawned boolean
+---@field forename string
+---@field surname string
+---@field isFemale boolean
+---@field squareX integer?
+---@field squareY integer?
+---@field squareZ integer?
+---@field npcIsoPlayerObject IsoPlayer
+local NPC = {}
 
 --- Cows: Construct the PZNS_NPCSurvivor.
----@param survivorID any                -- Cows: Unique Identifier for the current NPC
+---@param survivorID survivorID         -- Cows: Unique Identifier for the current NPC
 ---@param survivorName any              -- Cows: Current NPC's name
 ---@param npcIsoPlayerObject IsoPlayer  -- Cows: The actual IsoPlayer object the current NPC is spawned in as. NPCUtils will mostly interact with this object.
 ---@return table
-function PZNS_NPCSurvivor:newSurvivor(
+function NPC:new(
     survivorID,
     survivorName,
     npcIsoPlayerObject
 )
-    local npcSurvivor = {};
-    setmetatable(npcSurvivor, self);
-    self.__index = self;
-
-    npcSurvivor = {
+    local npcSurvivor = {
         survivorID = survivorID,
         survivorName = survivorName,
+        survivorNickname = nil,
         groupID = nil,
+        factionID = nil,
         affection = 50,                         -- WIP - Cows: Added this value as a check for invite-able NPCs... between 0 and 100? 0 Means 100% hostility and will attack.
+        isPlayer = false,                       -- Indicates whether this survivor is human player or NPC (for job/textObject update purposes)
         isForcedMoving = false,                 -- Cows: Added this flag to force NPCs to move and disengage from combat/other actions.
         isHoldingInPlace = false,               -- Cows: Prevent current NPC from moving if true
         isMeleeOnly = false,                    -- WIP - Cows: Will eventually be used in more complex combat AI.
@@ -55,5 +96,16 @@ function PZNS_NPCSurvivor:newSurvivor(
         npcIsoPlayerObject = npcIsoPlayerObject -- Cows: objects cannot be saved to moddata...
     };
 
+    setmetatable(npcSurvivor, self);
+    self.__index = self;
+
     return npcSurvivor;
 end
+
+---Assigns groupID to NPC
+---@param groupID groupID|nil
+function NPC:setGroupID(groupID)
+    self.groupID = groupID
+end
+
+return NPC

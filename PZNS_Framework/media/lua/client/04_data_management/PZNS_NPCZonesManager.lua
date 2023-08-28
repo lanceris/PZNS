@@ -1,5 +1,12 @@
-local PZNS_UtilsDataZones = require("02_mod_utils/PZNS_UtilsDataZones");
 local PZNS_NPCZonesManager = {};
+
+local Zone = require("03_mod_core/PZNS_NPCZone")
+
+---get zone by ID
+---@param zoneID zoneID
+local function getZone(zoneID)
+    return PZNS.Core.Zone.registry[zoneID]
+end
 
 ---comment
 ---@param groupID any
@@ -7,22 +14,26 @@ local PZNS_NPCZonesManager = {};
 ---@return table
 function PZNS_NPCZonesManager.createZone(
     groupID,
-    zoneType
+    zoneType,
+    zoneID,
+    name
 )
-    local activeZones = PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData();
-    local newZone = PZNS_NPCZone:newZone(groupID, zoneType);
-    local groupZoneID = groupID .. "_" .. zoneType;
-    --
-    if (activeZones[groupZoneID] == nil) then
-        activeZones[groupZoneID] = newZone;
+    local zone
+    zoneID = zoneID or groupID .. "_" .. zoneType
+    local existingZone = getZone(zoneID)
+    if not existingZone then
+        zone = Zone:new(zoneID, name, groupID, zoneType);
+        PZNS.Core.Zone.registry[zone.zoneID] = zone
+    else
+        zone = existingZone
     end
-    return newZone;
+    return zone;
 end
 
 --- Cows: Get a zone by the input groupID.
 ---@param groupID string
 function PZNS_NPCZonesManager.getZonesByGroupID(groupID)
-    local activeZones = PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData();
+    local activeZones = PZNS.Core.Zone.registry
     local groupZones = {};
     --
     if (activeZones ~= nil) then
@@ -41,7 +52,7 @@ end
 ---@param zoneType any
 ---@param groupID any
 function PZNS_NPCZonesManager.removeZoneByGroupIDZoneType(groupID, zoneType)
-    local activeZones = PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData();
+    local activeZones = PZNS.Core.Zone.registry
     --
     if (activeZones == nil) then
         return;

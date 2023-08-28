@@ -1,19 +1,31 @@
+require("03_mod_core/init")
+
 local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
-local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils");
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
 local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager");
 
-PZNS_ContextMenu = PZNS_ContextMenu or {}
+local callbackFunction = function(_, npcSurvivor, playerGroupID)
+    -- Cows: Remove the npcSurvivor from its original group if it was in a group
+    if (npcSurvivor.groupID ~= nil) then
+        PZNS_NPCGroupsManager.removeNPCFromGroupBySurvivorID(
+            npcSurvivor.groupID, npcSurvivor.survivorID
+        );
+    end
+    npcSurvivor.canSaveData = true; -- Cows: This will allow the NPC to be saved.
+    PZNS_NPCSpeak(npcSurvivor, "Glad to be in your group!", "Positive")
+    PZNS_NPCGroupsManager.addNPCToGroup(npcSurvivor, playerGroupID)
+    PZNS_UtilsDataNPCs.PZNS_SaveNPCData(npcSurvivor.survivorID, npcSurvivor);
+end
 
 ---comment
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS_ContextMenu.InviteOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.InviteOptions(mpPlayerID, context, worldobjects)
     local invitableCount = 0;
-    local playerSurvivor = getSpecificPlayer(mpPlayerID);
-    local playerGroupID = "Player" .. tostring(mpPlayerID) .. "Group";
+    local playerIsoObject = getSpecificPlayer(mpPlayerID);
+    local playerSurvivor = PZNS_NPCsManager.findNPCByIsoObject(playerIsoObject)
     --
     local square = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(mpPlayerID);
     local squareObjects = square:getMovingObjects();
@@ -27,42 +39,37 @@ function PZNS_ContextMenu.InviteOptions(mpPlayerID, context, worldobjects)
         --
         if (instanceof(currentObj, "IsoPlayer") == true) then
             -- Cows: Check and make sure it is NOT the current player and is alive
-            if (currentObj ~= playerSurvivor and currentObj:isAlive() == true) then
+            if (currentObj ~= playerIsoObject and currentObj:isAlive() == true) then
                 local npcSurvivor = PZNS_NPCsManager.getActiveNPCBySurvivorID(currentObj:getModData().survivorID);
-                local callbackFunction = function()
-                    -- Cows: Remove the npcSurvivor from its original group if it was in a group
-                    if (npcSurvivor.groupID ~= nil) then
-                        PZNS_NPCGroupsManager.removeNPCFromGroupBySurvivorID(
-                            npcSurvivor.groupID, npcSurvivor.survivorID
-                        );
-                    end
-                    npcSurvivor.canSaveData = true;                                  -- Cows: This will allow the NPC to be saved.
-                    PZNS_UtilsNPCs.PZNS_SetNPCGroupID(npcSurvivor, playerGroupID);   -- Cows: Update the npcSurvivor groupID
-                    PZNS_NPCGroupsManager.addNPCToGroup(npcSurvivor, playerGroupID); -- Cows: Add the npcSurvivor to the group's moddata
-                    PZNS_UtilsDataNPCs.PZNS_SaveNPCData(npcSurvivor.survivorID, npcSurvivor);
-                end
                 -- Cows: Check if the npc is not a raider, raiders cannot be invited
                 if (npcSurvivor.isRaider ~= true) then
                     --  Cows: Survivor affection must be above a set value to be invited
                     if (npcSurvivor.affection > 30) then
                         -- Cows: Ungrouped NPC
-                        if (npcSurvivor.groupID == nil) then
-                            invitableCount = invitableCount + 1;
-                            canInvite = true;
-                        elseif (npcSurvivor.groupID ~= playerGroupID) then
-                            -- Cows: Else different grouped NPCs
-                            invitableCount = invitableCount + 1;
-                            canInvite = true;
+                        -- if player not in group - where to invite to?
+                        if playerSurvivor and playerSurvivor.groupID then
+                            if (npcSurvivor.groupID == nil) then
+                                invitableCount = invitableCount + 1;
+                                canInvite = true;
+                            elseif (npcSurvivor.groupID ~= playerSurvivor.groupID) then
+                                -- Cows: Else different grouped NPCs
+                                invitableCount = invitableCount + 1;
+                                canInvite = true;
+                            end
                         end
                     end
                 end
                 -- Cows: Check if current NPC is invitable.
                 if (canInvite == true) then
-                    inviteSubMenu:addOption(
-                        npcSurvivor.survivorName,
-                        nil,
-                        callbackFunction
-                    );
+                    if playerSurvivor and playerSurvivor.groupID then
+                        inviteSubMenu:addOption(
+                            npcSurvivor.survivorName,
+                            nil,
+                            callbackFunction,
+                            npcSurvivor,
+                            playerSurvivor.groupID
+                        );
+                    end
                 end
             end
         end

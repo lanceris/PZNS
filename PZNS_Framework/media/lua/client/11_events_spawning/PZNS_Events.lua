@@ -1,20 +1,18 @@
+require("00_references/init")
 local PZNS_CombatUtils = require("02_mod_utils/PZNS_CombatUtils");
-local PZNS_UtilsDataGroups = require("02_mod_utils/PZNS_UtilsDataGroups");
+local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils")
 local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
-local PZNS_UtilsDataZones = require("02_mod_utils/PZNS_UtilsDataZones");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_WorldUtils = require("02_mod_utils/PZNS_WorldUtils");
 
 -- Cows: Sandbox Options if needed
 Events.OnInitGlobalModData.Add(PZNS_GetSandboxOptions);
 --
-Events.OnGameStart.Add(PZNS_UtilsDataGroups.PZNS_GetCreateActiveGroupsModData);
-Events.OnGameStart.Add(PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData);
-Events.OnGameStart.Add(PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData);
+Events.OnGameStart.Add(PZNS.Core.initModData)
 
 -- Cows: Perhaps someone else can come up with the multiplayer group creation...
+Events.OnGameStart.Add(PZNS_PlayerUtils.initPlayer)
 Events.OnGameStart.Add(PZNS_UtilsDataNPCs.PZNS_InitLoadNPCsData);
-Events.OnGameStart.Add(PZNS_LocalPlayerGroupCreation);
 Events.OnGameStart.Add(PZNS_UpdateISWorldMapRender);
 Events.OnGameStart.Add(PZNS_ResetJillTesterSpeechTable);
 Events.OnGameStart.Add(PZNS.UI.initUI)
@@ -26,7 +24,7 @@ local function PZNS_Events()
     Events.OnWeaponSwing.Add(PZNS_WeaponSwing);
     Events.OnWeaponHitCharacter.Add(PZNS_CombatUtils.PZNS_CalculatePlayerDamage);
     --
-    Events.OnFillWorldObjectContextMenu.Add(PZNS_ContextMenu.PZNS_OnFillWorldObjectContextMenu);
+    Events.OnFillWorldObjectContextMenu.Add(PZNS.Context.PZNS_OnFillWorldObjectContextMenu);
     --
     Events.OnRefreshInventoryWindowContainers.Add(PZNS_AddNPCInv);
     Events.OnFillInventoryObjectContextMenu.Add(PZNS_NPCInventoryContext);

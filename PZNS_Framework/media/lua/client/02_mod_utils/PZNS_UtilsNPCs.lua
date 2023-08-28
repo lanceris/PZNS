@@ -2,7 +2,8 @@
     Cows: This file is intended for ALL functions related to the creation, deletion, load,
     and editing of NPCs' specified attribute(s) and inventory data.
 --]]
-local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
+
+--TODO: probably remove all setters for npcSurvivor and leave only handlers for IsoPlayer
 local PZNS_UtilsNPCs = {};
 --- Cows: Add a specified trait to the target npcSurvivor.
 ---@param npcSurvivor any
@@ -253,8 +254,10 @@ end
 ---comment
 ---@param npcSurvivor any
 ---@param groupID string | nil
+---@deprecated
 function PZNS_UtilsNPCs.PZNS_SetNPCGroupID(npcSurvivor, groupID)
-    npcSurvivor.groupID = groupID;
+    local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager")
+    PZNS_NPCsManager.setGroupID(npcSurvivor.survivorID, groupID)
 end
 
 ---comment
@@ -372,7 +375,7 @@ function PZNS_UtilsNPCs.PZNS_AddNPCActionToQueue(npcSurvivor, npcQueueAction)
 end
 
 --- Cows Checks if NPC square is loaded, this is critical to ensure NPC IsoPlayer can act.
----@param npcSurvivor any
+---@param npcSurvivor NPC|nil
 ---@return boolean
 function PZNS_UtilsNPCs.PZNS_GetIsNPCSquareLoaded(npcSurvivor)
     if (npcSurvivor == nil) then
@@ -418,7 +421,7 @@ end
 function PZNS_UtilsNPCs.PZNS_CheckIfJobIsActive(jobName)
     local isJobActive = false;
     --
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     --
     for survivorID, v in pairs(activeNPCs) do
         local npcSurvivor = activeNPCs[survivorID];
@@ -515,11 +518,11 @@ end
 
 --- Cows: Clears ALL npcs' needs on call.
 function PZNS_UtilsNPCs.PZNS_ClearAllNPCsAllNeedsLevel()
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     --
     for survivorID, v in pairs(activeNPCs) do
         local npcSurvivor = activeNPCs[survivorID];
-        if (npcSurvivor.isAlive == true) then
+        if (npcSurvivor.isAlive == true) and npcSurvivor.isPlayer == false then
             PZNS_UtilsNPCs.PZNS_ClearNPCAllNeedsLevel(npcSurvivor);
         end
     end
@@ -551,6 +554,9 @@ function PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npcSurvivor)
     end
     if (npcSurvivor.isSpawned ~= true) then
         return false;
+    end
+    if npcSurvivor.isPlayer == true then
+        return false
     end
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
     if (npcIsoPlayer == nil) then

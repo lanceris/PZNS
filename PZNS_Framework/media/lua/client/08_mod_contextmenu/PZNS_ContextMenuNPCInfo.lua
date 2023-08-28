@@ -1,14 +1,10 @@
-local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
-local PZNS_WorldUtils = require("02_mod_utils/PZNS_WorldUtils");
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
-local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager");
 
-PZNS_ContextMenu = PZNS_ContextMenu or {}
 
 ---comment
 ---@param npcSurvivor any
----@return ItemContainer | nil
+---@return nil
 local function openNPCInfoPanel(npcSurvivor)
     if (npcSurvivor == nil) then
         return;
@@ -20,7 +16,7 @@ end
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS_ContextMenu.NPCInfoOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.NPCInfoOptions(mpPlayerID, context, worldobjects)
     local infoSubMenu_1 = context:getNew(context);
     local infoSubMenu_1_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_NPC_Info"),
@@ -30,7 +26,7 @@ function PZNS_ContextMenu.NPCInfoOptions(mpPlayerID, context, worldobjects)
     context:addSubMenu(infoSubMenu_1_Option, infoSubMenu_1);
     --
     local playerGroupID = "Player" .. tostring(mpPlayerID) .. "Group";
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     local groupMembers = PZNS_NPCGroupsManager.getGroupByID(playerGroupID);
     --
     if (groupMembers ~= nil) then

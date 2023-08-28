@@ -1,8 +1,10 @@
+require("00_references/init")
 --[[
     Cows: This file is intended for ALL functions related to the creation, deletion, load,
     and editing of all groups related moddata.
 --]]
-PZNS_ActiveGroups = {}; -- WIP - Cows: Need to rethink how Global variables are used...
+---@deprecated file
+PZNS_ActiveGroups = PZNS.Core.Group.registry; -- WIP - Cows: Need to rethink how Global variables are used...
 -- Cows: This variable should never be referenced directly, but through the corresponding management functions.
 local PZNS_UtilsDataGroups = {};
 

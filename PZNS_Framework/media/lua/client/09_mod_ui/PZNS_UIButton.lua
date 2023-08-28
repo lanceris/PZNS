@@ -74,6 +74,9 @@ local function reload(key)
     if key == Keyboard.KEY_Z then
         local player = getPlayer()
         local ut = require("04_data_management/PZNS_NPCsManager")
+        local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs")
+        local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils")
+        local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager")
 
         local i = 1
         local name = string.format("some_random_%s", i)
@@ -84,10 +87,14 @@ local function reload(key)
             isExist = PZNS.Core.NPC.registry[name]
         end
         print(name .. " is free, creating...")
-        local surv = ut.spawnRandomNPCSurvivorAtSquare(player:getSquare(), name, "Stand")
+        local surv = ut.spawnRandomNPCSurvivorAtSquare(player:getSquare(), name, "Companion")
+        local playerNPC = PZNS_PlayerUtils.getPlayerNPC(0)
+        local groupID = "Player0Group"
+        PZNS_NPCGroupsManager.addNPCToGroup(surv, groupID)
+        PZNS_UtilsNPCs.PZNS_SetNPCFollowTargetID(surv, playerNPC.survivorID)
         surv.affection = 60
         i = i + 1
     end
 end
 
--- Events.OnKeyPressed.Add(reload)
+Events.OnKeyPressed.Add(reload)

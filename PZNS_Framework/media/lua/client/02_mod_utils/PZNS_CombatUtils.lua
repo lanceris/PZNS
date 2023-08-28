@@ -1,6 +1,6 @@
-local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_PresetsSpeeches = require("03_mod_core/PZNS_PresetsSpeeches");
+local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager") --TODO: refactor, utils should not use managers
 
 local PZNS_CombatUtils = {};
 
@@ -53,41 +53,47 @@ function PZNS_CombatUtils.PZNS_CalculatePlayerDamage(wielder, victim, weapon)
     end
     -- Cows: Check if the victim is an NPC and calculate how much damage the npc will take from the weapon.
     if (victim:getIsNPC()) then
-        if (victim:getModData().survivorID ~= nil) then
-            local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
-            local npcSurvivor = activeNPCs[victim:getModData().survivorID];
-            local playerGroupID = "Player" .. tostring(0) .. "Group";
-            npcSurvivor.attackTicks = 0; -- Cows: Force reset the NPC attack ticks when they're hit, this prevents them from piling on damage.
-            -- Cows; Check if the npc struck is in the playerGroup.
-            if (npcSurvivor.groupID ~= playerGroupID) then
-                -- Cows: After reaching <= 0 affection
-                if (npcSurvivor.affection <= 0) then
-                    PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(
-                        npcSurvivor, PZNS_PresetsSpeeches.PZNS_HostileHit, "Hostile"
-                    );
-                else
-                    if (wielder == getSpecificPlayer(0)) then
-                        npcSurvivor.affection = npcSurvivor.affection - 25; -- Cows: Reduce affection whenever hit.
-                    end
-                    -- Cows: First time handling <= 0 affection
+        ---@type survivorID
+        local survivorID = victim:getModData().survivorID
+        if (survivorID) then
+            if not PZNS_NPCsManager then
+                PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager")
+            end
+            local npcSurvivor = PZNS_NPCsManager.getNPC(survivorID);
+            if npcSurvivor then
+                local playerGroupID = "Player" .. tostring(0) .. "Group";
+                npcSurvivor.attackTicks = 0; -- Cows: Force reset the NPC attack ticks when they're hit, this prevents them from piling on damage.
+                -- Cows; Check if the npc struck is in the playerGroup.
+                if (npcSurvivor.groupID ~= playerGroupID) then
+                    -- Cows: After reaching <= 0 affection
                     if (npcSurvivor.affection <= 0) then
                         PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(
-                            npcSurvivor, PZNS_PresetsSpeeches.PZNS_NeutralRevenge, "Hostile"
+                            npcSurvivor, PZNS_PresetsSpeeches.PZNS_HostileHit, "Hostile"
                         );
                     else
-                        -- Cows: Else complain about getting hit
+                        if (wielder == getSpecificPlayer(0)) then
+                            npcSurvivor.affection = npcSurvivor.affection - 25; -- Cows: Reduce affection whenever hit.
+                        end
+                        -- Cows: First time handling <= 0 affection
+                        if (npcSurvivor.affection <= 0) then
+                            PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(
+                                npcSurvivor, PZNS_PresetsSpeeches.PZNS_NeutralRevenge, "Hostile"
+                            );
+                        else
+                            -- Cows: Else complain about getting hit
+                            PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(
+                                npcSurvivor, PZNS_PresetsSpeeches.PZNS_NeutralHit, "Negative"
+                            );
+                        end
+                    end
+                else
+                    -- Cows: Check if it is friendly fire handling...
+                    if (wielder == getSpecificPlayer(0)) then
+                        npcSurvivor.affection = npcSurvivor.affection - 10; -- Cows: Reduce affection whenever hit.
                         PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(
-                            npcSurvivor, PZNS_PresetsSpeeches.PZNS_NeutralHit, "Negative"
+                            npcSurvivor, PZNS_PresetsSpeeches.PZNS_FriendlyFire, "Friendly"
                         );
                     end
-                end
-            else
-                -- Cows: Check if it is friendly fire handling...
-                if (wielder == getSpecificPlayer(0)) then
-                    npcSurvivor.affection = npcSurvivor.affection - 10; -- Cows: Reduce affection whenever hit.
-                    PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(
-                        npcSurvivor, PZNS_PresetsSpeeches.PZNS_FriendlyFire, "Friendly"
-                    );
                 end
             end
         end
@@ -97,7 +103,7 @@ function PZNS_CombatUtils.PZNS_CalculatePlayerDamage(wielder, victim, weapon)
             victim:faceThisObject(wielder);
         end
         local bonusDamage = 0;
-        local bodypartIndex = ZombRand(BodyPartType.Hand_L:index(), BodyPartType.MAX:index());  -- Cows: Original code, every bodypart had an equal chance to be hit...
+        local bodypartIndex = ZombRand(BodyPartType.Hand_L:index(), BodyPartType.MAX:index()); -- Cows: Original code, every bodypart had an equal chance to be hit...
         local injuredBodyParts = 0;
         local isDefensePenetrated = true;
         local isBluntWeapon = false; -- Cows: Blunt Damage Type

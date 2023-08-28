@@ -76,8 +76,9 @@ function PZNS_NPCSpeak(npcSurvivor, text, intention)
 end
 
 --- Cows: PZNS_RenderNPCsText() updates the text above ALL NPC characters.
+local pairs = pairs
 function PZNS_RenderNPCsText()
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     if (activeNPCs == nil) then
         return;
     end

@@ -72,7 +72,7 @@ end
 --- Cows: Helper function to spawn and despawn/unload NPCs from the game world.
 ---@param npcSurvivor any
 local function spawnNPCIsoPlayer(npcSurvivor)
-    if (npcSurvivor == nil) then
+    if (npcSurvivor == nil) or npcSurvivor.isPlayer then
         return;
     end
     --
@@ -81,7 +81,7 @@ local function spawnNPCIsoPlayer(npcSurvivor)
         -- Cows: Check isNPCSquareLoaded
         if (isNPCSquareLoaded == true) then
             local playerSurvivor = getSpecificPlayer(0);
-            -- Cows: Realized that there are times when the IsoPlayer object is in the world, but the parent object npcSurvivor isn't updated... 
+            -- Cows: Realized that there are times when the IsoPlayer object is in the world, but the parent object npcSurvivor isn't updated...
             local spawnX = npcSurvivor.squareX;
             local spawnY = npcSurvivor.squareY;
             local spawnZ = npcSurvivor.squareZ;
@@ -121,7 +121,7 @@ local function spawnNPCIsoPlayer(npcSurvivor)
                 end
                 -- Cows: Check if the npc cannot be saved and permanently remove from game world.
                 if (npcSurvivor.canSaveData == false) then
-                    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+                    local activeNPCs = PZNS.Core.NPC.registry
                     activeNPCs[npcSurvivor.survivorID] = nil;
                 end
             end
@@ -132,7 +132,7 @@ end
 --- Cows: A function to spawn/despawn NPCs when they become unloaded off-screen.
 --- Cows: There may be some sync issues because the "spawning" depends on the file in the save folder.
 function PZNS_WorldUtils.PZNS_SpawnNPCIfSquareIsLoaded()
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     if (activeNPCs == nil) then
         return;
     end
@@ -287,7 +287,7 @@ end
 
 --- Cows: Updates all the zombies and NPCs in the cell, fires after a grid square is loaded.
 function PZNS_WorldUtils.PZNS_UpdateCellNPCsList()
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     PZNS_CellNPCsList = {}; -- Cows: Update the PZNS_CellNPCsList
     -- Cows: Go through all the active NPCs and update their job routines
     for survivorID, v1 in pairs(activeNPCs) do
@@ -302,7 +302,7 @@ end
 --- https://github.com/shadowhunter100/PZNS/issues/36
 ---@param npcSurvivorID any
 function PZNS_WorldUtils.PlayerSayIsNPCSquareOnScreen(npcSurvivorID)
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     if (activeNPCs[npcSurvivorID] ~= nil) then
         local npcSurvivor = activeNPCs[npcSurvivorID];
         local square = getCell():getGridSquare(

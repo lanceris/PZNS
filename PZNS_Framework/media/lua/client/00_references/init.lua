@@ -1,5 +1,7 @@
 PZNS = PZNS or {}
 PZNS.Core = PZNS.Core or {}
+PZNS.Context = PZNS.Context or {}
+PZNS.Context.Debug = PZNS.Context.Debug or {}
 PZNS.UI = PZNS.UI or {}
 
 PZNS.Core.NPC = {}
@@ -29,7 +31,7 @@ PZNS.Core.Zone.registry = {}
 ---@alias float number
 
 ---@class IsoObject
----@field getModData fun(): table<string, number|string|boolean|table>
+---@field getModData fun(): table --<string|number, number|string|boolean|table|nil>
 ---@field getSquare fun(): IsoGridSquare
 ---@class IsoMovingObject:IsoObject
 ---@class IsoGameCharacter:IsoMovingObject
@@ -49,6 +51,7 @@ PZNS.Core.Zone.registry = {}
 ---@field getY fun(): integer Y position
 ---@field getZ fun(): integer Z position
 
+---@class ItemContainer
 
 --FIXME
 ---@class Faction

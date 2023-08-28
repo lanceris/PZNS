@@ -1,15 +1,12 @@
-local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_PresetsSpeeches = require("03_mod_core/PZNS_PresetsSpeeches");
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
-
-PZNS_ContextMenu = PZNS_ContextMenu or {}
 
 ---comment
 ---@param groupID any
 ---@param parentContextMenu any
 local function PZNS_CreateJobNPCsMenu(parentContextMenu, mpPlayerID, groupID, jobName)
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     local groupMembers = PZNS_NPCGroupsManager.getGroupByID(groupID);
     local followTargetID = "Player" .. mpPlayerID;
     --
@@ -66,7 +63,7 @@ end
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS_ContextMenu.JobsOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.JobsOptions(mpPlayerID, context, worldobjects)
     local jobsSubMenu_1 = context:getNew(context);
     local jobsSubMenu_1_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_Jobs"),

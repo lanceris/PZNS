@@ -3,7 +3,6 @@
     All the zones data are now managed by moddata and should run *much* better than before.
     The Zones management code essentially locks the NPC mods in to local single player only however...
 --]]
-local PZNS_UtilsDataZones = require("02_mod_utils/PZNS_UtilsDataZones");
 
 PZNS_IsCreatingZone = false; -- WIP - Cows: Need to rethink how Global variables are used...
 PZNS_IsShowingZone = false;  -- WIP - Cows: Need to rethink how Global variables are used...
@@ -157,7 +156,7 @@ end
 ---@param zoneType string
 ---@return unknown
 function PZNS_UtilsZones.PZNS_GetGroupZoneBoundary(groupID, zoneType)
-    local activeZones = PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData();
+    local activeZones = PZNS.Core.Zone.registry
     local groupZoneID = groupID .. "_" .. zoneType;
     local currentZone = activeZones[groupZoneID];
 
@@ -178,7 +177,7 @@ end
 ---@param zoneType string
 ---@param boundaries any
 function PZNS_UtilsZones.PZNS_SetGroupZoneBoundary(groupID, zoneType, boundaries)
-    local activeZones = PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData();
+    local activeZones = PZNS.Core.Zone.registry
     local groupZoneID = groupID .. "_" .. zoneType;
     local currentZone = activeZones[groupZoneID];
 

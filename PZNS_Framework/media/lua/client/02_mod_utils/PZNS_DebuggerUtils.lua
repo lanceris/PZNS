@@ -1,10 +1,7 @@
 ModId = "PZNS_Framework";
-local PZNS_UtilsDataGroups = require("02_mod_utils/PZNS_UtilsDataGroups");
-local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
-local PZNS_UtilsDataZones = require("02_mod_utils/PZNS_UtilsDataZones");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
-local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager");
-local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
+local PZNS_NPCsManager --TODO: refactor, utils should not use managers
+local PZNS_NPCGroupsManager
 
 local PZNS_DebuggerUtils = {};
 
@@ -65,7 +62,7 @@ end
 
 ---comment
 function PZNS_DebuggerUtils.LogNPCsModData()
-    local modData = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local modData = PZNS.Core.NPC.registry
     local isLoggingLocalFunction = true;
     --
     if (isLoggingLocalFunction and modData ~= nil) then
@@ -88,7 +85,7 @@ end
 
 ---comment
 function PZNS_DebuggerUtils.LogNPCGroupsModData()
-    local modData = PZNS_UtilsDataGroups.PZNS_GetCreateActiveGroupsModData();
+    local modData = PZNS.Core.Group.registry
     local isLoggingLocalFunction = true;
     local memberCount = 0;
     --
@@ -118,7 +115,7 @@ end
 
 ---comment
 function PZNS_DebuggerUtils.LogZonesModData()
-    local zonesModData = PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData();
+    local zonesModData = PZNS.Core.Zone.registry
     local isLoggingLocalFunction = true;
     --
     if (isLoggingLocalFunction) then
@@ -140,11 +137,18 @@ function PZNS_DebuggerUtils.LogZonesModData()
 end
 
 --- Cows: Wipe ALL moddata.
+---NOTE: not used
 function PZNS_DebuggerUtils.PZNS_WipeAllData()
     if (PZNS_ActiveNPCs == nil) then
         return;
     end
     --
+    if not PZNS_NPCGroupsManager then
+        PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager")
+    end
+    if not PZNS_NPCsManager then
+        PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager")
+    end
     for k1, v1 in pairs(PZNS_ActiveNPCs) do
         local npcSurvivor = PZNS_ActiveNPCs[k1];
         local npcGroupID = npcSurvivor.groupID;
@@ -156,9 +160,7 @@ function PZNS_DebuggerUtils.PZNS_WipeAllData()
         end
         PZNS_NPCsManager.deleteActiveNPCBySurvivorID(npcSurvivorID);
     end
-    PZNS_UtilsDataNPCs.PZNS_ClearNPCModData();
-    PZNS_UtilsDataGroups.PZNS_ClearGroupsModData();
-    PZNS_UtilsDataZones.PZNS_ClearZonesData();
+    PZNS.Core.clearModData("all")
 end
 
 --- Cows: Get all the ModData tables.

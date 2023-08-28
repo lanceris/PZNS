@@ -1,4 +1,3 @@
-local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_PresetsSpeeches = require("03_mod_core/PZNS_PresetsSpeeches");
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
@@ -35,7 +34,7 @@ PZNS_Jobs = {
 
 --- Cows: Helper function for PZNS_UpdateAllJobsRoutines(), can also be used to update an npc's routine when their job is changed.
 ---@param npcSurvivor any
-function PZNS_UpdateNPCJobRoutine(npcSurvivor)
+local function PZNS_UpdateNPCJobRoutine(npcSurvivor)
     if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npcSurvivor) == false) then
         return;
     end
@@ -56,7 +55,6 @@ function PZNS_UpdateNPCJobRoutine(npcSurvivor)
             );
         end
         PZNS_NPCGroupsManager.removeNPCFromGroupBySurvivorID(npcSurvivor.groupID, npcSurvivor.survivorID);
-        PZNS_UtilsNPCs.PZNS_SetNPCGroupID(npcSurvivor, nil);
         PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, "Wander In Cell");
         return; -- Cows: Stop Processing, the npc is no longer in the group.
     end
@@ -85,8 +83,10 @@ function PZNS_UpdateNPCJobRoutine(npcSurvivor)
 end
 
 --- Cows: Updates all active npcs' job routine
+--- Runs every RenderTick
+local pairs = pairs
 function PZNS_UpdateAllJobsRoutines()
-    local activeNPCs = PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData();
+    local activeNPCs = PZNS.Core.NPC.registry
     -- Cows: Go through all the active NPCs and update their job routines
     for survivorID, v1 in pairs(activeNPCs) do
         local npcSurvivor = activeNPCs[survivorID];
