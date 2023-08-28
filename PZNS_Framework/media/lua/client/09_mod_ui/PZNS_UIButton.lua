@@ -1,11 +1,11 @@
-require("09_mod_ui/__init")
+require("09_mod_ui/init")
 
 local utils = require("02_mod_utils/PZNS_UtilsUI")
 
 function PZNS.UI.initWindow()
-    local args = { x = 100, y = 400, width = 500, height = 300 }
+    PZNS.UI.config = PZNS.UI.settings.load()
 
-    PZNS.UI.mainWindow = PZNS_Window:new(args)
+    PZNS.UI.mainWindow = PZNS_Window:new(PZNS.UI.config.main_window)
     PZNS.UI.mainWindow:initialise()
     PZNS.UI.mainWindow:setVisible(false)
     PZNS.UI.windowCaretaker = utils.Caretaker:new(PZNS.UI.mainWindow)
@@ -20,6 +20,8 @@ function PZNS.UI.toggleUI(_)
         button:setImage(button._meta.onTexture)
         ui:setVisible(false)
         ui:removeFromUIManager()
+        PZNS.UI.settings.serialize()
+        PZNS.UI.settings.save()
     else
         button:setImage(button._meta.offTexture)
         ui:setVisible(true)
@@ -28,6 +30,8 @@ function PZNS.UI.toggleUI(_)
 end
 
 function PZNS.UI.initUI(_)
+    PZNS_CreateNPCPanelInfo()
+    PZNS_CreatePVPButton()
     local pvpBtn = PVPButton -- TODO: refactor PVPButton
     if PZNS.UI.mainButton then error("PZNS.UI.mainButton already exist") end
     if not pvpBtn then error("PVPButton not found") end
@@ -68,8 +72,22 @@ local function reload(key)
         PZNS.UI.initUI()
     end
     if key == Keyboard.KEY_Z then
-        PZNS.UI.windowCaretaker:showHistory()
+        local player = getPlayer()
+        local ut = require("04_data_management/PZNS_NPCsManager")
+
+        local i = 1
+        local name = string.format("some_random_%s", i)
+        local isExist = PZNS.Core.NPC.registry[name]
+        while isExist do
+            i = i + 1
+            name = string.format("some_random_%s", i)
+            isExist = PZNS.Core.NPC.registry[name]
+        end
+        print(name .. " is free, creating...")
+        local surv = ut.spawnRandomNPCSurvivorAtSquare(player:getSquare(), name, "Stand")
+        surv.affection = 60
+        i = i + 1
     end
 end
 
-Events.OnKeyPressed.Add(reload)
+-- Events.OnKeyPressed.Add(reload)

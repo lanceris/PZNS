@@ -1,4 +1,4 @@
-require("00_references/__init")
+require("00_references/init")
 
 PZNS_UIView = ISPanelJoypad:derive("PZNS_UIView")
 
@@ -10,6 +10,8 @@ function PZNS_UIView:create()
     self.container = ISPanelJoypad:new(0, self.toolsRow:getBottom(), self.toolsRow.width,
         self.height - self.toolsRow.height)
     self.container.background = false
+    self.container.anchorBottom = true
+    self.container.anchorRight = true
     self.container:initialise()
 
     self:addChild(self.toolsRow)
@@ -123,6 +125,25 @@ function PZNS_UIView:new(args)
     if not o.data.onBackButtonDown then
         o.data.onBackButtonDown = PZNS_UIView.back
     end
+    o.anchorBottom = true
+    o.anchorRight = true
     o.backgroundColor = { r = 0, g = 0, b = 0, a = 0 }
     return o
 end
+
+--region update
+
+function PZNS_UIView:updateCategories(data, counts)
+    local selector = self.toolsRow.selector
+
+    selector:clear()
+    selector:addOptionWithData(self.defaultCategory, { count = self.categoryData[self.defaultCategory].count })
+    table.sort(data)
+    for i = 1, #data do
+        selector:addOptionWithData(data[i], { count = counts[data[i]] })
+    end
+
+    selector:select(self.selectedCategory)
+end
+
+--endregion

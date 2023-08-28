@@ -1,4 +1,4 @@
-require("00_references/__init")
+require("00_references/init")
 require("09_mod_ui/views/PZNS_UIView")
 
 PZNS.UI.ViewFaction = PZNS_UIView:derive("PZNS_UIViewFaction")

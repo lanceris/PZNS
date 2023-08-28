@@ -16,8 +16,6 @@ Events.OnGameStart.Add(PZNS_UtilsDataZones.PZNS_GetCreateActiveZonesModData);
 Events.OnGameStart.Add(PZNS_UtilsDataNPCs.PZNS_InitLoadNPCsData);
 Events.OnGameStart.Add(PZNS_LocalPlayerGroupCreation);
 Events.OnGameStart.Add(PZNS_UpdateISWorldMapRender);
-Events.OnGameStart.Add(PZNS_CreateNPCPanelInfo);
-Events.OnGameStart.Add(PZNS_CreatePVPButton);
 Events.OnGameStart.Add(PZNS_ResetJillTesterSpeechTable);
 Events.OnGameStart.Add(PZNS.UI.initUI)
 

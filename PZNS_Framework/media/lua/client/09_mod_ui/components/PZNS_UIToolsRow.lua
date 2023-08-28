@@ -1,4 +1,4 @@
-require("09_mod_ui/__init")
+require("09_mod_ui/init")
 local fzy = require("02_mod_utils/fzy_lua")
 local utils = require("02_mod_utils/PZNS_UtilsUI")
 PZNS.UI.ToolsRow = ISPanelJoypad:derive('PZNS_UIToolsRow')
@@ -43,6 +43,8 @@ function class:create()
     if self.args.selector then
         self:selectorSetOnChange(self.selector, self.args.selector)
     end
+    self.selector.editable = true
+    self.selector.font = UIFont.Small
     self.selector:initialise()
     self.selector:instantiate()
     self.selector.prerender = self.prerenderSelector

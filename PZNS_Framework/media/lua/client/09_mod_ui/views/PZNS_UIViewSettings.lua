@@ -1,4 +1,4 @@
-require("00_references/__init")
+require("00_references/init")
 require("09_mod_ui/views/PZNS_UIView")
 
 PZNS.UI.ViewSettings = PZNS_UIView:derive("PZNS_UIViewSettings")
@@ -27,6 +27,24 @@ function view:create()
 
     self.label = ISLabel:new(0, 0, 30, self.data.name, 1, 1, 1, 1, UIFont.Medium, true)
     self.label:initialise()
+
+    local fromConfig = PZNS.UI.config.settings
+
+    self.settings = {
+        ui_scale = {
+            name = "UIScale",
+            slider = {
+                values = {
+                    current = fromConfig.ui_scale,
+                    min = 0.25,
+                    max = 3,
+                    step = 0.25,
+                    shift = 0.5,
+                }
+            },
+
+        }
+    }
 
     -- (x, y, w, h, labelArgs, sliderArgs)
     local sliderArgs = {
@@ -62,6 +80,8 @@ function view:create()
         onTextChange = self.onInputChange
     }
     self.slider2 = self:addSliderRow(0, self.UIScaleSlider:getBottom() + 2, 300, 24, sliderArgs, labelArgs, inputArgs)
+
+    --endregion
 
     self.container:addChild(self.label)
     self.container:addChild(self.UIScaleSlider)

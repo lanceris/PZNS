@@ -1,4 +1,4 @@
-require("00_references/__init")
+require("00_references/init")
 require("09_mod_ui/views/PZNS_UIView")
 
 PZNS.UI.ViewGroup = PZNS_UIView:derive("PZNS_UIViewGroup")
@@ -56,6 +56,8 @@ function view:create()
 
     self.container:addChild(self.tableList)
     self.container:addChild(self.tableDetail)
+
+    -- self:initSelector()
 end
 
 function view:doDrawItemList(y, item, alt)
@@ -111,6 +113,9 @@ function view:prerenderTable()
 end
 
 function view:onActivateView()
+    --gather all groups of player faction (or player group, if player is not a member of a faction)
+    local playerNPCObj = 1
+    -- self.allGroups = PZNS.Core.Group.registry
     print("Activated " .. self.type)
 end
 
@@ -126,6 +131,19 @@ end
 --         end
 --     end
 -- end
+
+function view:initSelector()
+    local selector = self.toolsRow.selector
+    -- local groups = PZNS.NPCGroup.registry
+
+    local data = {}
+    table.insert(data, { name = "All", count = groups.__total })
+    for groupID, group in pairs(groups) do
+        if groupID ~= "__total" then
+            table.insert(data, { id = groupID, name = group.name, count = #group.members })
+        end
+    end
+end
 
 function view:new(args)
     local o = PZNS_UIView:new(args)

@@ -43,17 +43,17 @@ local function getNPCSurvivorTextInfo(npcSurvivor)
     panelTextInfo = panelTextInfo ..
         "Sprinting: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Sprinting")) .. "\n";
     panelTextInfo = panelTextInfo ..
-        "Lightfoot: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Lightfoot")) .. "\n";         -- naming issue
+        "Lightfoot: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Lightfoot")) .. "\n"; -- naming issue
     panelTextInfo = panelTextInfo ..
         "Nimble: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Nimble")) .. "\n";
     panelTextInfo = panelTextInfo ..
-        "Sneak: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Sneak")) .. "\n";         -- naming issue
+        "Sneak: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Sneak")) .. "\n"; -- naming issue
     panelTextInfo = panelTextInfo .. "\n";
     -- Combat
     panelTextInfo = panelTextInfo ..
         "Axe: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Axe")) .. "\n";
     panelTextInfo = panelTextInfo ..
-        "Long Blunt: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Blunt")) .. "\n";         -- naming issue
+        "Long Blunt: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Blunt")) .. "\n"; -- naming issue
     panelTextInfo = panelTextInfo ..
         "Small Blunt: " ..
         tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "SmallBlunt")) .. "\n";
@@ -70,19 +70,19 @@ local function getNPCSurvivorTextInfo(npcSurvivor)
     panelTextInfo = panelTextInfo .. "\n";
     -- Crafting
     panelTextInfo = panelTextInfo ..
-        "Carpentry: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Woodwork")) .. "\n";         -- naming issue
+        "Carpentry: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Woodwork")) .. "\n"; -- naming issue
     panelTextInfo = panelTextInfo ..
         "Cooking: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Cooking")) .. "\n";
     panelTextInfo = panelTextInfo ..
         "Farming: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Farming")) .. "\n";
     panelTextInfo = panelTextInfo ..
-        "First Aid: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Doctor")) .. "\n";         -- naming issue
+        "First Aid: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Doctor")) .. "\n"; -- naming issue
     panelTextInfo = panelTextInfo ..
         "Electrical: " ..
-        tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Electricity")) .. "\n";         -- naming issue
+        tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Electricity")) .. "\n"; -- naming issue
     panelTextInfo = panelTextInfo ..
         "Metalworking: " ..
-        tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "MetalWelding")) .. "\n";         -- naming issue
+        tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "MetalWelding")) .. "\n"; -- naming issue
     panelTextInfo = panelTextInfo ..
         "Mechanics: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Mechanics")) .. "\n";
     panelTextInfo = panelTextInfo ..
@@ -100,7 +100,7 @@ local function getNPCSurvivorTextInfo(npcSurvivor)
         "Trapping: " .. tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "Trapping")) .. "\n";
     panelTextInfo = panelTextInfo ..
         "Foraging: " ..
-        tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "PlantScavenging")) .. "\n";         -- naming issue
+        tostring(PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, "PlantScavenging")) .. "\n"; -- naming issue
     panelTextInfo = panelTextInfo .. "\n";
     -- Cows: What is in the npcSurvivor hands
     panelTextInfo = panelTextInfo ..
@@ -264,9 +264,11 @@ function PZNS_ShowNPCInfoPanel(text_info)
 end
 
 function PZNS_CreateNPCPanelInfo()
-    PZNS_NPCPanelInfo = PanelSurvivorInfo:new(100, 150, FONT_HGT_SMALL * 6 + 175, FONT_HGT_SMALL * 10 + 500 + 56)
-    PZNS_NPCPanelInfo:addToUIManager()
-    PZNS_NPCPanelInfo:setVisible(false)
+    if not PZNS_NPCPanelInfo then
+        PZNS_NPCPanelInfo = PanelSurvivorInfo:new(100, 150, FONT_HGT_SMALL * 6 + 175, FONT_HGT_SMALL * 10 + 500 + 56)
+        PZNS_NPCPanelInfo:addToUIManager()
+        PZNS_NPCPanelInfo:setVisible(false)
+    end
 end
 
 --- Cows: Placeholder for getting and displaying NPC info.

@@ -1,4 +1,4 @@
-require("09_mod_ui/__init")
+require("09_mod_ui/init")
 PZNS_Window = ISCollapsableWindowJoypad:derive('PZNS_Window')
 -- local PZNS_Window = PZNS.UI.PZNS_Window
 
@@ -53,6 +53,10 @@ end
 -- endregion
 
 -- region logic
+
+function PZNS_Window:close()
+    PZNS.UI.toggleUI()
+end
 
 function PZNS_Window:addView(name, viewArgs)
     local viewData = PZNS.UI.viewData[name]
@@ -148,8 +152,8 @@ function PZNS_Window:new(args)
     local o = {}
     local x = args.x
     local y = args.y
-    local width = args.width
-    local height = args.height
+    local width = args.w
+    local height = args.h
 
     o = ISCollapsableWindowJoypad:new(x, y, width, height)
     setmetatable(o, self)
