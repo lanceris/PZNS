@@ -64,11 +64,10 @@ local function PZNS_CreateZoneTypesMenu(parentContextMenu, controlKey, groupID)
 end
 
 ---comment
----@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS.Context.ZonesOptions(mpPlayerID, context, worldobjects)
-    local playerGroupID = "Player" .. mpPlayerID .. "Group";
+---@param playerSurvivor NPC
+function PZNS.Context.ZonesOptions(context, worldobjects, playerSurvivor)
     --
     local zonesSubMenu_1 = context:getNew(context);
     local zonesSubMenu_1_Option = context:addOption(
@@ -76,6 +75,9 @@ function PZNS.Context.ZonesOptions(mpPlayerID, context, worldobjects)
         worldobjects,
         nil
     );
+    --
+    local playerGroupID = playerSurvivor.groupID
+    if not playerGroupID then return end
     --
     context:addSubMenu(zonesSubMenu_1_Option, zonesSubMenu_1);
     -- Cows: Add and display the context menu zone controls conditoinally.

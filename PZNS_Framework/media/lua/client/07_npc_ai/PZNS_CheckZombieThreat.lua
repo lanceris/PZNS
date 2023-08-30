@@ -49,6 +49,7 @@ function PZNS_CheckZombieThreat(npcSurvivor)
     end
     --
     for i = PZNS_CellZombiesList:size() - 1, 0, -1 do
+        ---@type IsoZombie
         local zombie = PZNS_CellZombiesList:get(i);
         --
         if (PZNS_WorldUtils.PZNS_IsObjectZombieActive(zombie) == true) then
@@ -56,7 +57,7 @@ function PZNS_CheckZombieThreat(npcSurvivor)
             local currentThreatDistance = PZNS_WorldUtils.PZNS_GetDistanceBetweenTwoObjects(npcIsoPlayer, zombie);
             local isOnSameFloorLevel = zombie:getZ() == npcIsoPlayer:getZ();
             local isTargetInAimRange = currentThreatDistance < aimRange;
-            local canSeeTarget = npcIsoPlayer:CanSee(zombie);     -- Cows: "vision cone" isn't a thing for NPCs... they can "see" the world objects without facing them.
+            local canSeeTarget = npcIsoPlayer:CanSee(zombie); -- Cows: "vision cone" isn't a thing for NPCs... they can "see" the world objects without facing them.
             --
             if (canSeeTarget == true and currentThreatDistance < spottingRange) then
                 isThreatExist = true;

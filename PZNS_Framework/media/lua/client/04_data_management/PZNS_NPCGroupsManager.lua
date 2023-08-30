@@ -148,7 +148,7 @@ end
 
 ---Get group members
 ---@param groupID groupID
----@return table<survivorID>
+---@return table<survivorID?>
 function PZNS_NPCGroupsManager.getMembers(groupID)
     local group = getGroup(groupID)
     verifyGroup(groupID)

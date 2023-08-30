@@ -79,26 +79,20 @@ end
 
 ---comment
 ---@param parentContextMenu any
----@param mpPlayerID number
----@param groupID any
 ---@param orderKey any
+---@param playerSurvivor NPC
+---@param playerGroupMembers table<survivorID?>
+---@param square IsoGridSquare
 ---@return any
-local function PZNS_CreateGroupNPCsSubMenu(parentContextMenu, mpPlayerID, groupID, orderKey)
+local function PZNS_CreateGroupNPCsSubMenu(parentContextMenu, orderKey, playerSurvivor, playerGroupMembers, square)
     local activeNPCs = PZNS.Core.NPC.registry
-    local groupMembers = PZNS_NPCGroupsManager.getMembers(groupID)
-    local playerSurvivor = PZNS_PlayerUtils.getPlayerNPC(mpPlayerID)
-    if not playerSurvivor then
-        error("Can't find player for ID: " .. mpPlayerID)
-        return
-    end
-    local square = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(mpPlayerID);
     -- Cows: Stop if the square isn't in a loaded visible square or there are no active npcs.
-    if (square == nil or activeNPCs == nil or groupMembers == nil) then
+    if (square == nil or activeNPCs == nil) then
         return;
     end
     --
-    for i = 1, #groupMembers do
-        local npcSurvivor = activeNPCs[groupMembers[i]];
+    for i = 1, #playerGroupMembers do
+        local npcSurvivor = activeNPCs[playerGroupMembers[i]];
         -- Cows: Conditionally set the callback function for the context menu option.
         --
         if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npcSurvivor) == true) then
@@ -120,10 +114,10 @@ local function PZNS_CreateGroupNPCsSubMenu(parentContextMenu, mpPlayerID, groupI
 end
 
 ---comment
----@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS.Context.OrdersOptions(mpPlayerID, context, worldobjects)
+---@param playerSurvivor NPC
+function PZNS.Context.OrdersOptions(context, worldobjects, playerSurvivor, square)
     local orderSubMenu = context:getNew(context);
     local orderSubMenu_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_Orders"),
@@ -132,7 +126,12 @@ function PZNS.Context.OrdersOptions(mpPlayerID, context, worldobjects)
     );
     context:addSubMenu(orderSubMenu_Option, orderSubMenu);
     --
-    local playerGroupID = "Player" .. mpPlayerID .. "Group";
+    local playerGroupID = playerSurvivor.groupID
+    local groupMembers
+    if playerGroupID then
+        groupMembers = PZNS_NPCGroupsManager.getMembers(playerGroupID)
+    end
+    if not groupMembers then return end
     --
     for orderKey, orderText in pairs(PZNS_NPCOrdersText) do
         local orderAction = orderSubMenu:getNew(context);
@@ -142,7 +141,7 @@ function PZNS.Context.OrdersOptions(mpPlayerID, context, worldobjects)
             nil
         );
         local npcsSubMenu = orderAction:getNew(context);
-        PZNS_CreateGroupNPCsSubMenu(npcsSubMenu, mpPlayerID, playerGroupID, orderKey);
+        PZNS_CreateGroupNPCsSubMenu(npcsSubMenu, orderKey, playerSurvivor, groupMembers, square);
         --
         orderSubMenu:addSubMenu(orderAction_Option, orderAction);
         orderAction:addSubMenu(orderAction_Option, npcsSubMenu);

@@ -3,6 +3,7 @@ require("03_mod_core/init")
 local PZNS_PlayerUtils = {};
 local PZNS_NPCsManager --TODO: refactor, utils should not use managers
 local PZNS_NPCGroupsManager
+local NPC = require("03_mod_core/PZNS_NPCSurvivor")
 
 ---@return NPC
 local function createLocalPlayerNPCSurvivor(playerIsoObject)
@@ -23,6 +24,7 @@ local function createLocalPlayerNPCSurvivor(playerIsoObject)
         playerIsoObject)
     npcSurvivor.isPlayer = true
     npcSurvivor.canSaveData = false
+    NPC.setPlayerNum(npcSurvivor, num)
     if not npcSurvivor.npcIsoPlayerObject then
         error("Something went wrong, can't access player object")
     end

@@ -8,6 +8,7 @@ local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager"
 --]]
 
 -- Cows: Init PZNS_CellZombiesList as an empty table, which can then be used by all NPCs to evaluate the zombie threat.
+---@type ArrayList?
 PZNS_CellZombiesList = nil; -- WIP - Cows: Need to rethink how Global variables are used...
 PZNS_CellNPCsList = {};     -- WIP - Cows: Need to rethink how Global variables are used...
 

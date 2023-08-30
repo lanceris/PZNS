@@ -63,6 +63,7 @@ function PZNS_UpdateISWorldMapRender()
         if isShowingGroupMembers ~= true then
             return;
         end
+        ---@type Group?
         local group = PZNS_PlayerUtils.getPlayerGroup()
         local activeNPCs = PZNS.Core.NPC.registry
         -- Cows: check if activeNPCs is not nil and loaded.
@@ -70,8 +71,8 @@ function PZNS_UpdateISWorldMapRender()
             return;
         end
         -- Cows: iterate through the survivorIDs of the group.
-        for survivorID, v in pairs(group) do
-            local npcSurvivor = activeNPCs[survivorID];
+        for i = 1, group.memberCount do
+            local npcSurvivor = activeNPCs[group.members[i]];
             --
             if (npcSurvivor ~= nil) and npcSurvivor.isPlayer == false then
                 local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;

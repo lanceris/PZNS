@@ -101,14 +101,13 @@ end
 ---@param square IsoGridSquare
 ---@param deadBody IsoDeadBody | nil
 ---@return any
-local function PZNS_CreateSquareGroupNPCsSubMenu(parentContextMenu, mpPlayerID, groupID, orderKey, square, deadBody)
+local function PZNS_CreateSquareGroupNPCsSubMenu(parentContextMenu, playerSurvivor, groupID, orderKey, square, deadBody)
     local activeNPCs = PZNS.Core.NPC.registry
     local groupMembers = PZNS_NPCGroupsManager.getGroupByID(groupID);
     --
     if (groupMembers == nil) then
         return;
     end
-    local playerSurvivor = getSpecificPlayer(mpPlayerID);
     for survivorID, v in pairs(groupMembers) do
         local npcSurvivor = activeNPCs[survivorID];
         local callbackFunction = function()
@@ -154,11 +153,9 @@ end
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS.Context.SquareObjectsOptions(mpPlayerID, context, worldobjects)
-    local playerGroupID = "Player" .. mpPlayerID .. "Group";
+function PZNS.Context.SquareObjectsOptions(context, worldobjects, playerSurvivor, square)
     local squareSubMenu = context:getNew(context);
     --
-    local square = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(mpPlayerID);
     mouseSquareToHighlight = square;
     Events.OnRenderTick.Add(renderMouseSquare);
     Events.OnMouseUp.Add(stopRenderMouseSquare);
@@ -175,7 +172,7 @@ function PZNS.Context.SquareObjectsOptions(mpPlayerID, context, worldobjects)
         squareSubMenu:addSubMenu(grabCorpseSubMenu_Option, grabCorpseSubMenu);
         local npcsSubMenuCorpse = grabCorpseSubMenu:getNew(context);
         PZNS_CreateSquareGroupNPCsSubMenu(
-            npcsSubMenuCorpse, mpPlayerID, playerGroupID,
+            npcsSubMenuCorpse, playerSurvivor, playerSurvivor.groupID,
             "GrabCorpse", square, deadBody
         );
         grabCorpseSubMenu:addSubMenu(grabCorpseSubMenu_Option, npcsSubMenuCorpse);
@@ -192,7 +189,7 @@ function PZNS.Context.SquareObjectsOptions(mpPlayerID, context, worldobjects)
         );
         squareSubMenu:addSubMenu(drinkSubMenu_Option, drinkSubMenu);
         local npcsSubMenuDrink = drinkSubMenu:getNew(context);
-        PZNS_CreateSquareGroupNPCsSubMenu(npcsSubMenuDrink, mpPlayerID, playerGroupID, "Drink", square, nil);
+        PZNS_CreateSquareGroupNPCsSubMenu(npcsSubMenuDrink, playerSurvivor, playerSurvivor.groupID, "Drink", square, nil);
         drinkSubMenu:addSubMenu(drinkSubMenu_Option, npcsSubMenuDrink);
     end
     --
@@ -215,8 +212,9 @@ function PZNS.Context.SquareObjectsOptions(mpPlayerID, context, worldobjects)
         squareSubMenu:addSubMenu(washSelfSubMenu_Option, washSelfSubMenu);
         local npcsSubMenuWashClothes = washClothesSubMenu:getNew(context);
         local npcsSubMenuWashSelf = washSelfSubMenu:getNew(context);
-        PZNS_CreateSquareGroupNPCsSubMenu(npcsSubMenuWashClothes, mpPlayerID, playerGroupID, "WashClothes", square);
-        PZNS_CreateSquareGroupNPCsSubMenu(npcsSubMenuWashSelf, mpPlayerID, playerGroupID, "WashSelf", square);
+        PZNS_CreateSquareGroupNPCsSubMenu(npcsSubMenuWashClothes, playerSurvivor, playerSurvivor.groupID, "WashClothes",
+            square);
+        PZNS_CreateSquareGroupNPCsSubMenu(npcsSubMenuWashSelf, playerSurvivor, playerSurvivor.groupID, "WashSelf", square);
         washClothesSubMenu:addSubMenu(washClothesSubMenu_Option, npcsSubMenuWashClothes);
         washSelfSubMenu:addSubMenu(washSelfSubMenu_Option, npcsSubMenuWashSelf);
     end

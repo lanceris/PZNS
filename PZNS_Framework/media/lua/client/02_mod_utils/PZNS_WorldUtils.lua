@@ -7,8 +7,8 @@ local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 
 local PZNS_WorldUtils = {};
 --- Cows: Get the distance between 2 objects.
----@param currentObject any
----@param targetObject any
+---@param currentObject IsoObject
+---@param targetObject IsoObject
 function PZNS_WorldUtils.PZNS_GetDistanceBetweenTwoObjects(currentObject, targetObject)
     if (currentObject == nil) or (targetObject == nil) then
         return 1;

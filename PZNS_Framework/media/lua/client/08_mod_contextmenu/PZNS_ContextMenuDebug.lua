@@ -105,7 +105,7 @@ end
 
 ---comment
 ---@param targetSquare any
-local function spawnZombieAtSquare(_, targetSquare)
+local function spawnZombieAtSquare(targetSquare)
     local squareX = targetSquare:getX();
     local squareY = targetSquare:getY();
     local squareZ = targetSquare:getZ();
@@ -144,11 +144,9 @@ local PZNS_DebugBuild = {
     SpawnTools = addToolsToLocalPlayer,
 };
 
---- Cows: mpPlayerID is a placeholder, it doesn't do anything.
----@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS.Context.Debug.BuildOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.Debug.BuildOptions(context, worldobjects)
     --
     local submenu_1 = context:getNew(context);
     local submenu_1_Option = context:addOption(
@@ -172,19 +170,19 @@ function PZNS.Context.Debug.BuildOptions(mpPlayerID, context, worldobjects)
 end
 
 -- Cows: Respawn Christ Tester
----@param mpPlayerID integer player num
----@param square? IsoGridSquare square to spawn NPC at
-local function respawnChristTester(mpPlayerID, square)
+---@param playerSurvivor NPC
+---@param square? IsoGridSquare square to spawn NPC at; if nil - spawn at `playerSurvivor` position
+local function respawnChristTester(playerSurvivor, square)
     PZNS_DeleteChrisTester();
-    PZNS_SpawnChrisTester(mpPlayerID, square);
+    PZNS_SpawnChrisTester(playerSurvivor, square);
 end
 
 -- Cows: Respawn Jill Tester
----@param mpPlayerID integer player num
----@param square? IsoGridSquare square to spawn NPC at
-local function respawnJillTester(mpPlayerID, square)
+---@param playerSurvivor NPC
+---@param square? IsoGridSquare square to spawn NPC at; if `nil` - spawn at `playerSurvivor` position
+local function respawnJillTester(playerSurvivor, square)
     PZNS_DeleteJillTester()
-    PZNS_SpawnJillTester(mpPlayerID, square);
+    PZNS_SpawnJillTester(playerSurvivor, square);
 end
 
 local function removeNPCsAndData()
@@ -209,45 +207,41 @@ local PZNS_DebugWorldText = {
 
 };
 ---
-local PZNS_DebugWorld = {
-    ClearPlayerNeeds = PZNS_PlayerUtils.PZNS_ClearPlayerAllNeeds,
-    ClearAllNPCsNeeds = PZNS_UtilsNPCs.PZNS_ClearAllNPCsAllNeedsLevel,
-    SpawnChris = respawnChristTester,
-    SpawnJill = respawnJillTester,
-    SpawnZombie = spawnZombieAtSquare,
-    SpawnRaider = PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare,
-    SpawnNPCSurvivor = PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare,
-    RemoveDeadBodies = PZNS_DebuggerUtils.PZNS_RemoveDeadBodies
-};
 
---- Cows: mpPlayerID is a placeholder, it doesn't do anything and defaults to 0 in a local game.
----@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS.Context.Debug.WorldOptions(mpPlayerID, context, worldobjects)
+---@param square IsoGridSquare
+function PZNS.Context.Debug.WorldOptions(context, worldobjects, playerSurvivor, square)
     local submenu_1 = context:getNew(context);
     local submenu_1_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_Debug_World"),
         worldobjects,
         nil
     );
-    local square = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(0);
     context:addSubMenu(submenu_1_Option, submenu_1);
+    --
+    ---@type table<string, {fun:function, params:table<any?>}>
+    local PZNS_DebugWorld = {
+        ClearPlayerNeeds = { fun = PZNS_PlayerUtils.PZNS_ClearPlayerAllNeeds, params = {} },
+        ClearAllNPCsNeeds = { fun = PZNS_UtilsNPCs.PZNS_ClearAllNPCsAllNeedsLevel, params = {} },
+        SpawnChris = { fun = respawnChristTester, params = { playerSurvivor, square } },
+        SpawnJill = { fun = respawnJillTester, params = { playerSurvivor, square } },
+        SpawnZombie = { fun = spawnZombieAtSquare, params = { square } },
+        SpawnRaider = { fun = PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare, params = { square } },
+        SpawnNPCSurvivor = { fun = PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare, params = { square } },
+        RemoveDeadBodies = { fun = PZNS_DebuggerUtils.PZNS_RemoveDeadBodies, params = {} },
+    };
     --
     for debugKey, debugText in pairs(PZNS_DebugWorldText) do
         -- Cows: conditionally set the callback function for the context menu option.
-        local callbackFunction = function()
-            if (debugKey == "SpawnRaider" or debugKey == "SpawnNPCSurvivor") then
-                PZNS_DebugWorld[debugKey](square, nil);
-            else
-                PZNS_DebugWorld[debugKey](mpPlayerID, square);
-            end
-        end
         --
+        local key = PZNS_DebugWorld[debugKey]
+        if not key then return end
         submenu_1:addOption(
             debugText,
-            nil,
-            callbackFunction
+            key.params[1] or nil,
+            key.fun,
+            unpack(key.params, 2)
         );
     end
 end
@@ -274,7 +268,7 @@ local PZNS_DebugWipe = {
 ---@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS.Context.Debug.WipeOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.Debug.WipeOptions(context, worldobjects)
     local submenu_1 = context:getNew(context);
     local submenu_1_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_Debug_WipeData"),

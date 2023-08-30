@@ -1,7 +1,6 @@
 local PZNS_DebuggerUtils = require("02_mod_utils/PZNS_DebuggerUtils");
 local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
-local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils")
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
 local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager");
 local PZNS_SpeechTableJill = require("10_mod_templates/PZNS_SpeechTableJill");
@@ -11,16 +10,15 @@ local npcSurvivorID = "PZNS_JillTester";
 --- Cows: mpPlayerID is merely a placeholder... PZ has issues as of B41 with NPCs/non-players in a MP environment.
 --- Cows: Example of spawning in an NPC. This Npc is "Jill Tester"
 ---@param addToPlayerGroup? boolean if true - try to add NPC to player group (if exist) by default true
-function PZNS_SpawnJillTester(mpPlayerID, square, addToPlayerGroup)
+function PZNS_SpawnJillTester(playerSurvivor, square, addToPlayerGroup)
     addToPlayerGroup = addToPlayerGroup == nil and true or addToPlayerGroup
     local npcSurvivor = PZNS_NPCsManager.getNPC(npcSurvivorID)
     --
-    local playerNPC = PZNS_PlayerUtils.getPlayerNPC(mpPlayerID)
     local playerGroup
-    if playerNPC then
-        local playerSurvivor = playerNPC.npcIsoPlayerObject
-        square = square or playerSurvivor:getSquare()
-        playerGroup = PZNS_NPCGroupsManager.getGroupByID(playerNPC.groupID)
+    if playerSurvivor then
+        local isoPlayer = playerSurvivor.npcIsoPlayerObject
+        square = square or isoPlayer:getSquare()
+        playerGroup = PZNS_NPCGroupsManager.getGroupByID(playerSurvivor.groupID)
     end
     if not square then return end
     -- Cows: Check if the NPC is active before continuing.
@@ -57,8 +55,8 @@ function PZNS_SpawnJillTester(mpPlayerID, square, addToPlayerGroup)
             PZNS_UtilsNPCs.PZNS_AddItemsToInventoryNPCSurvivor(npcSurvivor, "Base.Bullets9mm", 15);
             -- Cows: Set the job...
             PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, "Companion");
-            if playerNPC then
-                PZNS_UtilsNPCs.PZNS_SetNPCFollowTargetID(npcSurvivor, playerNPC.survivorID);
+            if playerSurvivor then
+                PZNS_UtilsNPCs.PZNS_SetNPCFollowTargetID(npcSurvivor, playerSurvivor.survivorID);
             end
             -- Cows: Begin styling customizations...
             PZNS_UtilsNPCs.PZNS_SetNPCHairModel(npcSurvivor, "Bob");

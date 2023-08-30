@@ -23,8 +23,8 @@ local function PZNS_CheckDistToNPCInventory()
 end
 
 ---comment
----@param mpPlayerID any
----@param npcSurvivor any
+---@param mpPlayerID integer
+---@param npcSurvivor NPC
 ---@return ItemContainer | nil
 local function openNPCInventory(mpPlayerID, npcSurvivor)
     if (npcSurvivor == nil) then
@@ -37,10 +37,10 @@ local function openNPCInventory(mpPlayerID, npcSurvivor)
 end
 
 --- Cows: mpPlayerID is a placeholder, it always defaults to 0 in local.
----@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS.Context.NPCInventoryOptions(mpPlayerID, context, worldobjects)
+---@param playerSurvivor NPC
+function PZNS.Context.NPCInventoryOptions(context, worldobjects, playerSurvivor)
     local inventorySubMenu_1 = context:getNew(context);
     local inventorySubMenu_1_Option = context:addOption(
         getText("ContextMenu_PZNS_PZNS_Inventory"),
@@ -49,26 +49,27 @@ function PZNS.Context.NPCInventoryOptions(mpPlayerID, context, worldobjects)
     );
     context:addSubMenu(inventorySubMenu_1_Option, inventorySubMenu_1);
     --
-    local playerSurvivor = getSpecificPlayer(mpPlayerID);
-    local playerGroupID = "Player" .. tostring(mpPlayerID) .. "Group";
+    local playerGroupID = playerSurvivor.groupID
+    local groupMembers
     local activeNPCs = PZNS.Core.NPC.registry
-    local groupMembers = PZNS_NPCGroupsManager.getGroupByID(playerGroupID);
+    if playerGroupID then
+        groupMembers = PZNS_NPCGroupsManager.getMembers(playerGroupID)
+    end
     --
     if (groupMembers == nil) then
         return;
     end
-    for survivorID, v in pairs(groupMembers) do
-        local npcSurvivor = activeNPCs[survivorID];
-        --
+    for i = 1, #groupMembers do
+        local npcSurvivor = activeNPCs[groupMembers[i]]
         if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npcSurvivor) == true) then
             local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
             local npcDistanceFromPlayer = PZNS_WorldUtils.PZNS_GetDistanceBetweenTwoObjects(
-                playerSurvivor, npcIsoPlayer
+                playerSurvivor.npcIsoPlayerObject, npcIsoPlayer
             );
             if (npcDistanceFromPlayer <= 2) then
                 -- Cows: conditionally set the callback function for the inventorySubMenu_1 option.
                 local callbackFunction = function()
-                    openNPCInventory(mpPlayerID, npcSurvivor);
+                    openNPCInventory(playerSurvivor.mpPlayerID, npcSurvivor);
                 end
                 inventorySubMenu_1:addOption(
                     npcSurvivor.survivorName,

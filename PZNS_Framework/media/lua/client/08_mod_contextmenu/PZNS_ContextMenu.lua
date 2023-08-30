@@ -1,22 +1,22 @@
 require("00_references/init")
 
-function PZNS.Context.PZNS_CreateContextMenuDebug(mpPlayerID, context, worldobjects)
-    if (SandboxVars.PZNS_Framework.IsDebugModeActive ~= true) then
-        return
-    end
-    PZNS.Context.Debug.BuildOptions(mpPlayerID, context, worldobjects)
-    PZNS.Context.Debug.WorldOptions(mpPlayerID, context, worldobjects)
-    PZNS.Context.Debug.WipeOptions(mpPlayerID, context, worldobjects)
+local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils")
+local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager")
+
+function PZNS.Context.PZNS_CreateContextMenuDebug(context, worldobjects, playerSurvivor, square)
+    PZNS.Context.Debug.BuildOptions(context, worldobjects)
+    PZNS.Context.Debug.WorldOptions(context, worldobjects, playerSurvivor, square)
+    PZNS.Context.Debug.WipeOptions(context, worldobjects)
 end
 
-function PZNS.Context.PZNS_CreateContextMenu(mpPlayerID, context, worldobjects)
-    PZNS.Context.ZonesOptions(mpPlayerID, context, worldobjects)
-    PZNS.Context.JobsOptions(mpPlayerID, context, worldobjects)
-    PZNS.Context.OrdersOptions(mpPlayerID, context, worldobjects)
-    PZNS.Context.NPCInventoryOptions(mpPlayerID, context, worldobjects)
-    PZNS.Context.NPCInfoOptions(mpPlayerID, context, worldobjects)
-    PZNS.Context.SquareObjectsOptions(mpPlayerID, context, worldobjects)
-    PZNS.Context.InviteOptions(mpPlayerID, context, worldobjects)
+function PZNS.Context.PZNS_CreateContextMenu(context, worldobjects, playerSurvivor, square)
+    PZNS.Context.ZonesOptions(context, worldobjects, playerSurvivor)
+    PZNS.Context.JobsOptions(context, worldobjects, playerSurvivor)
+    PZNS.Context.OrdersOptions(context, worldobjects, playerSurvivor, square)
+    PZNS.Context.NPCInventoryOptions(context, worldobjects, playerSurvivor)
+    PZNS.Context.NPCInfoOptions(context, worldobjects, playerSurvivor)
+    PZNS.Context.SquareObjectsOptions(context, worldobjects, playerSurvivor, square)
+    PZNS.Context.InviteOptions(context, worldobjects, playerSurvivor, square)
 end
 
 function PZNS.Context.PZNS_OnFillWorldObjectContextMenu(mpPlayerID, context, worldobjects)
@@ -24,6 +24,13 @@ function PZNS.Context.PZNS_OnFillWorldObjectContextMenu(mpPlayerID, context, wor
     local PZNSMenu = ISContextMenu:getNew(context)
     context:addSubMenu(opt, PZNSMenu)
 
-    PZNS.Context.PZNS_CreateContextMenuDebug(mpPlayerID, PZNSMenu, worldobjects)
-    PZNS.Context.PZNS_CreateContextMenu(mpPlayerID, PZNSMenu, worldobjects)
+    local playerIsoObject = getSpecificPlayer(mpPlayerID)
+    local playerSurvivor = PZNS_NPCsManager.findNPCByIsoObject(playerIsoObject)
+    if not playerSurvivor then return end
+    local clickedOnSquare = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(mpPlayerID)
+
+    if SandboxVars.PZNS_Framework.IsDebugModeActive == true then
+        PZNS.Context.PZNS_CreateContextMenuDebug(PZNSMenu, worldobjects, playerSurvivor, clickedOnSquare)
+    end
+    PZNS.Context.PZNS_CreateContextMenu(PZNSMenu, worldobjects, playerSurvivor, clickedOnSquare)
 end

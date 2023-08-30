@@ -19,15 +19,13 @@ local callbackFunction = function(_, npcSurvivor, playerGroupID)
 end
 
 ---comment
----@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
-function PZNS.Context.InviteOptions(mpPlayerID, context, worldobjects)
+---@param playerSurvivor NPC
+---@param square IsoGridSquare Clicked on cell
+function PZNS.Context.InviteOptions(context, worldobjects, playerSurvivor, square)
     local invitableCount = 0;
-    local playerIsoObject = getSpecificPlayer(mpPlayerID);
-    local playerSurvivor = PZNS_NPCsManager.findNPCByIsoObject(playerIsoObject)
     --
-    local square = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(mpPlayerID);
     local squareObjects = square:getMovingObjects();
     local objectsListSize = squareObjects:size() - 1;
     --
@@ -39,7 +37,7 @@ function PZNS.Context.InviteOptions(mpPlayerID, context, worldobjects)
         --
         if (instanceof(currentObj, "IsoPlayer") == true) then
             -- Cows: Check and make sure it is NOT the current player and is alive
-            if (currentObj ~= playerIsoObject and currentObj:isAlive() == true) then
+            if (currentObj ~= playerSurvivor.npcIsoPlayerObject and currentObj:isAlive() == true) then
                 local npcSurvivor = PZNS_NPCsManager.getActiveNPCBySurvivorID(currentObj:getModData().survivorID);
                 -- Cows: Check if the npc is not a raider, raiders cannot be invited
                 if (npcSurvivor.isRaider ~= true) then

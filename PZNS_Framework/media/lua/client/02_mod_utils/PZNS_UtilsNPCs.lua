@@ -257,7 +257,11 @@ end
 ---@deprecated
 function PZNS_UtilsNPCs.PZNS_SetNPCGroupID(npcSurvivor, groupID)
     local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager")
-    PZNS_NPCsManager.setGroupID(npcSurvivor.survivorID, groupID)
+    if groupID then
+        PZNS_NPCsManager.setGroupID(npcSurvivor.survivorID, groupID)
+    else
+        PZNS_NPCsManager.unsetGroupID(npcSurvivor.survivorID)
+    end
 end
 
 ---comment
@@ -304,7 +308,7 @@ end
 ---@param speechTable table
 ---@param intention string | nil
 function PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(npcSurvivor, speechTable, intention)
-    if (npcSurvivor == nil or speechTable == nil) then
+    if (npcSurvivor == nil or speechTable == nil or npcSurvivor.isPlayer == true) then
         return;
     end
     local tableSize = #speechTable;
