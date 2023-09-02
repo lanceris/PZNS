@@ -1,12 +1,12 @@
 require("00_references/init")
 
----@class Faction
+---@class NPCFaction
 ---@field factionID factionID Unique faction identifier
 ---@field name string Faction name
 ---@field leaderID survivorID NPC ID of faction leader
 ---@field memberCount integer number of members in faction
 ---@field members table<survivorID> list of faction members
-local Faction = {}
+local NPCFaction = {}
 
 
 ---Creates new faction with provided parameters and puts it to registry
@@ -15,7 +15,7 @@ local Faction = {}
 ---@param leaderID? survivorID
 ---@param members? table<survivorID>
 ---@return table faction Created faction
-function Faction:new(
+function NPCFaction:new(
     factionID,
     name,
     leaderID,
@@ -35,13 +35,13 @@ end
 
 ---Sets new leader for faction
 ---@param newLeaderID factionID
-function Faction:setLeader(newLeaderID)
+function NPCFaction:setLeader(newLeaderID)
     self.leaderID = newLeaderID
 end
 
 ---Get list of faction members
 ---@return table<survivorID>
-function Faction:getMembers()
+function NPCFaction:getMembers()
     local res = {}
     for i = 1, #self.members do
         res[i] = self.members[i]
@@ -50,13 +50,13 @@ function Faction:getMembers()
 end
 
 ---Get number of group members
-function Faction:getMemberCount()
+function NPCFaction:getMemberCount()
     return self.memberCount
 end
 
 ---Added memberID to faction members
 ---@param memberID survivorID NPC survivorID of newly added member
-function Faction:addMember(memberID)
+function NPCFaction:addMember(memberID)
     if not memberID then return end
     self.members[self.memberCount + 1] = memberID
     self.memberCount = self.memberCount + 1
@@ -64,7 +64,7 @@ end
 
 ---Removes <memberID> from Faction members
 ---@param memberID survivorID NPC survivorID of member to remove
-function Faction:removeMember(memberID)
+function NPCFaction:removeMember(memberID)
     if not memberID then return end
     if memberID == self.leaderID then
         self.leaderID = nil
@@ -80,11 +80,11 @@ end
 
 ---Rename group
 ---@param newName string  New name for group (length<50)
-function Faction:setName(newName)
+function NPCFaction:setName(newName)
     local limit = 50
     if not newName or newName == "" then error("Name not valid:" .. tostring(newName)) end
     if #newName > limit then error(string.format("Name too long: %d>%d", #newName, limit)) end
     self.name = newName
 end
 
-return Faction
+return NPCFaction

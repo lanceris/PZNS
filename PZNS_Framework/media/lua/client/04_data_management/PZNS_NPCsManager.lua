@@ -314,7 +314,7 @@ end
 --- Cows: Go make your own random spawns, this is an example for debugging and testing.
 ---@param targetSquare IsoGridSquare
 ---@param raiderID survivorID?
----@return unknown
+---@return NPC raiderSurvivor
 function PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(targetSquare, raiderID)
     local isFemale = ZombRand(100) > 50; -- Cows: 50/50 roll for female spawn
     local raiderForeName = SurvivorFactory.getRandomForename(isFemale);

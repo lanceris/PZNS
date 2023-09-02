@@ -26,7 +26,7 @@ local function getNPC(survivorID)
 end
 
 ---@param factionID factionID
----@return Faction|nil
+---@return NPCFaction?
 local function getFaction(factionID)
     return PZNS.Core.Faction.registry[factionID]
 end
