@@ -1,16 +1,16 @@
 require("00_references/init")
 
----@class Zone
----@field zoneID zoneID Unique zone identifier
----@field name string Zone name
----@field groupID groupID associated group ID
----@field zoneType any list of NPC survivorIDs
----@field zoneBoundaryX1 integer first corner X
----@field zoneBoundaryX2 integer first corner Y
----@field zoneBoundaryY1 integer second corner X
----@field zoneBoundaryY2 integer second corner Y
----@field zoneBoundaryZ integer zone Z level
-local Zone = {}
+---@class NPCZone
+---@field zoneID zoneID             Unique zone identifier
+---@field name string               Zone name
+---@field groupID groupID           associated group ID
+---@field zoneType any              list of NPC survivorIDs
+---@field zoneBoundaryX1 integer    first corner X
+---@field zoneBoundaryX2 integer    first corner Y
+---@field zoneBoundaryY1 integer    second corner X
+---@field zoneBoundaryY2 integer    second corner Y
+---@field zoneBoundaryZ integer     zone Z level
+local NPCZone = {}
 
 ---Creates new zone
 ---@param zoneID? string
@@ -18,7 +18,7 @@ local Zone = {}
 ---@param groupID groupID
 ---@param zoneType any
 ---@return table
-function Zone:new(
+function NPCZone:new(
     zoneID,
     name,
     groupID,
@@ -41,4 +41,4 @@ function Zone:new(
     return npcZone;
 end
 
-return Zone
+return NPCZone

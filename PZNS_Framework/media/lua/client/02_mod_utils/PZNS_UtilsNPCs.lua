@@ -164,27 +164,32 @@ function PZNS_UtilsNPCs.PZNS_AddEquipWeaponNPCSurvivor(npcSurvivor, weaponID)
 end
 
 --- WIP - Cows: Simple code to equip the last weapon the npcSurvivor had.
----@param npcSurvivor any
+---@param npcSurvivor NPC
 function PZNS_UtilsNPCs.PZNS_EquipLastWeaponNPCSurvivor(npcSurvivor)
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
     if (npcIsoPlayer == nil) then
         return nil;
     end
+    ---@type InventoryItem?
     local weaponItem = nil
     --
     if (npcSurvivor.isMeleeOnly == true) then -- TODO reuse item from inventory if any of the same type
-        weaponItem = instanceItem(npcSurvivor.lastEquippedMeleeWeapon);
+        if npcSurvivor.lastEquippedMeleeWeapon then
+            weaponItem = instanceItem(npcSurvivor.lastEquippedMeleeWeapon:getFullType());
+        end
     else
-        weaponItem = instanceItem(npcSurvivor.lastEquippedRangeWeapon);
+        if npcSurvivor.lastEquippedRangeWeapon then
+            weaponItem = instanceItem(npcSurvivor.lastEquippedRangeWeapon:getFullType());
+        end
     end
     --
     if (weaponItem ~= nil) then
         npcIsoPlayer:getInventory():AddItem(weaponItem);
         npcIsoPlayer:setPrimaryHandItem(weaponItem);
-        --
         local npcHandItem = npcIsoPlayer:getPrimaryHandItem();
         --
         if (npcHandItem:IsWeapon() == true) then
+            ---@cast npcHandItem +HandWeapon
             --
             if (npcHandItem:isRanged() == true) then
                 npcSurvivor.lastEquippedRangeWeapon = npcHandItem;

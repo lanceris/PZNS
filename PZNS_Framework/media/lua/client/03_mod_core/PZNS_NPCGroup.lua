@@ -1,12 +1,12 @@
 require("00_references/init")
 
 ---@class Group
----@field groupID groupID Unique group identifier
----@field name string Group name
----@field leaderID survivorID NPC ID of group leader
+---@field groupID groupID           Unique group identifier
+---@field name string               Group name
+---@field leaderID survivorID       NPC ID of group leader
 ---@field members table<survivorID> list of group members
----@field memberCount integer number of members in group
----@field factionID factionID? Faction this group belongs to
+---@field memberCount integer       number of members in group
+---@field factionID factionID?      Faction this group belongs to
 local Group = {}
 
 -- - Cows: can set the group leader later.

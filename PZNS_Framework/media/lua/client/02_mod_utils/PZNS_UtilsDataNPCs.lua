@@ -116,8 +116,9 @@ function PZNS_UtilsDataNPCs.PZNS_SaveAllNPCData()
 end
 
 --- Cows: Spawn the npcs from moddata after loading saved data from the save folder.
----@param npcSurvivor any
----@return any
+--- Spawn IsoPlayer based on NPC params
+---@param npcSurvivor NPC
+---@return NPC? npcSurvivor
 function PZNS_UtilsDataNPCs.PZNS_SpawnNPCFromModData(npcSurvivor)
     if (npcSurvivor == nil) then
         return;
@@ -157,7 +158,7 @@ function PZNS_UtilsDataNPCs.PZNS_SpawnNPCFromModData(npcSurvivor)
 end
 
 ---Cows: Helper function for removing specified npc moddata and save file.
----@param npcSurvivor any
+---@param npcSurvivor NPC
 function PZNS_UtilsDataNPCs.PZNS_RemoveNPCSaveData(npcSurvivor)
     if (npcSurvivor ~= nil) and npcSurvivor.isPlayer == false then
         PZNS.Core.NPC.registry[npcSurvivor.survivorID] = nil;
