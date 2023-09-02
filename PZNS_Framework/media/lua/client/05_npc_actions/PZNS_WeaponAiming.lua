@@ -43,6 +43,9 @@ function PZNS_WeaponAiming(npcSurvivor)
     end
     -- Cows: Get all check values for the NPC before said NPC can aim.
     local distanceFromTarget = PZNS_WorldUtils.PZNS_GetDistanceBetweenTwoObjects(npcIsoPlayer, targetObject);
+    -- this will get victim vision cone
+    -- local canSeeTarget = PZNS_CombatUtils.canSee(npcIsoPlayer, targetObject)
+    -- TODO: add sound checks (IsoZombie.RespondToSound() or Events.OnWorldSound)
     local canSeeTarget = npcIsoPlayer:CanSee(targetObject); -- Cows: "vision cone" isn't a thing for NPCs... they can "see" the world objects without facing them.
     local isTargetAlive = targetObject:isAlive();
     local isTargetInSpottingRange = distanceFromTarget < spottingRange;

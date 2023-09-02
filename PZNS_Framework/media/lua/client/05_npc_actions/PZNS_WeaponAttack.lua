@@ -5,23 +5,31 @@ local meleeTicks = 40;  -- Cows: As ticks are inconsistent between machines... t
 local rangedTicks = 60; -- Cows: As ticks are inconsistent between machines... this should be an option user can set for comfort.
 
 --- Cows: Currently, a damage calculation is needed for NPCs... otherwise NPCs do 0 damage to zombies.
----@param npcIsoPlayer any
----@param victim any
-local function calculateNPCDamage(npcIsoPlayer, victim)
+---@param npcIsoPlayer IsoPlayer
+---@param victim IsoGameCharacter
+local function calculateNPCDamage(npcIsoPlayer, victim, weapon)
     if (PZNS_CombatUtils.PZNS_IsTargetInvalidForDamage(victim) == true) then
         return;
     end
-    --
-    local aimingLevel = npcIsoPlayer:getPerkLevel(Perks.FromString("Aiming"));
-    local npcWeapon = npcIsoPlayer:getPrimaryHandItem();
-    local actualHitChance = PZNS_CombatUtils.PZNS_CalculateHitChance(npcWeapon, aimingLevel, 0);
-    local weaponDamage = npcWeapon:getMaxDamage(); -- Cows: Need to look at redoing weapon damage... otherwise NPC melee weapons will destroy everything at max damage.
     -- Cows: Check if the victim is an IsoPlayer and not an NPC
     if (instanceof(victim, "IsoPlayer") == true and victim:getIsNPC() == false) then
         if (IsPVPActive == false) then
             PZNS_CombatUtils.PZNS_TogglePvP();
         end
     end
+    if instanceof(victim, "IsoPlayer") then
+        ---@cast victim IsoPlayer
+        PZNS_CombatUtils.PZNS_CalculatePlayerDamage(npcIsoPlayer, victim, weapon, 0)
+        -- print("IsoPlayer is not valid target for this func")
+        return
+    end
+    --
+    local aimingLevel = npcIsoPlayer:getPerkLevel(Perks.FromString("Aiming"));
+    local npcWeapon = npcIsoPlayer:getPrimaryHandItem();
+    ---@cast npcWeapon HandWeapon
+    local actualHitChance = PZNS_CombatUtils.PZNS_CalculateHitChance(npcWeapon, aimingLevel, 0);
+    local weaponDamage = npcWeapon:getMaxDamage(); -- Cows: Need to look at redoing weapon damage... otherwise NPC melee weapons will destroy everything at max damage.
+
     if (npcWeapon:isRanged()) then
         if (actualHitChance > ZombRand(100)) then
             victim:Hit(npcWeapon, npcIsoPlayer, weaponDamage, false, 1.0);
@@ -32,51 +40,51 @@ local function calculateNPCDamage(npcIsoPlayer, victim)
 end
 
 --- Cows: Helper function for NPCs doing melee attack
----@param npcSurvivor any
+---@param npcSurvivor NPC
 ---@param npcIsoPlayer IsoPlayer
 ---@param targetObject IsoPlayer | IsoZombie
-local function meleeAttack(npcSurvivor, npcIsoPlayer, targetObject)
+local function meleeAttack(npcSurvivor, npcIsoPlayer, targetObject, weapon)
     if (npcSurvivor.attackTicks >= meleeTicks) then
         local isTargetAlive = targetObject:isAlive();
         --
         if (isTargetAlive == true) then
             -- PZNS_NPCSpeak(npcSurvivor, "Attacking target");
             npcIsoPlayer:NPCSetAttack(true);
-            calculateNPCDamage(npcIsoPlayer, targetObject);
+            calculateNPCDamage(npcIsoPlayer, targetObject, weapon);
         end
         npcSurvivor.attackTicks = 0;
     end
 end
 
 --- Cows: Helper function for NPCs doing ranged attack
----@param npcSurvivor any
+---@param npcSurvivor NPC
 ---@param npcIsoPlayer IsoPlayer
 ---@param targetObject IsoPlayer | IsoZombie
-local function rangedAttack(npcSurvivor, npcIsoPlayer, targetObject)
+local function rangedAttack(npcSurvivor, npcIsoPlayer, targetObject, weapon)
     if (npcSurvivor.attackTicks >= rangedTicks) then
         local isTargetAlive = targetObject:isAlive();
         --
         if (isTargetAlive == true) then
             -- PZNS_NPCSpeak(npcSurvivor, "Attacking target");
             npcIsoPlayer:NPCSetAttack(true);
-            calculateNPCDamage(npcIsoPlayer, targetObject);
+            calculateNPCDamage(npcIsoPlayer, targetObject, weapon);
         end
         npcSurvivor.attackTicks = 0;
     end
 end
 
 --- Cows: Main function for NPCs attacking
----@param npcSurvivor any
+---@param npcSurvivor NPC
 function PZNS_WeaponAttack(npcSurvivor)
     if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npcSurvivor) == false) then
         return;
     end
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
-    --
     local npcHandItem = npcIsoPlayer:getPrimaryHandItem();
     if (npcHandItem == nil) then
         return;
     end
+    ---@cast npcHandItem HandWeapon
     local isNPCHandItemWeapon = npcHandItem:IsWeapon();
     if (isNPCHandItemWeapon == false) then
         PZNS_NPCSpeak(npcSurvivor, getText("IGUI_PZNS_Speech_Preset_NeedWeapon_01"), "Negative");
@@ -113,10 +121,10 @@ function PZNS_WeaponAttack(npcSurvivor)
     end
     -- Cows: Melee and Ranged weapons are handled separately...
     if (npcHandItem:isRanged() == true) then
-        rangedAttack(npcSurvivor, npcIsoPlayer, targetObject);
+        rangedAttack(npcSurvivor, npcIsoPlayer, targetObject, npcHandItem);
     else
         npcIsoPlayer:NPCSetMelee(true);
-        meleeAttack(npcSurvivor, npcIsoPlayer, targetObject);
+        meleeAttack(npcSurvivor, npcIsoPlayer, targetObject, npcHandItem);
     end
     --
     npcSurvivor.attackTicks = npcSurvivor.attackTicks + 1;

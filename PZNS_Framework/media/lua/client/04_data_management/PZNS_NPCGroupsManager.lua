@@ -6,7 +6,7 @@ local Group = require("03_mod_core/PZNS_NPCGroup")
 
 local fmt = string.format
 
----@return Group|nil
+---@return Group?
 local function getGroup(groupID)
     return PZNS.Core.Group.registry[groupID]
 end
@@ -20,7 +20,7 @@ local function verifyGroup(groupID, reverse)
 end
 
 ---@param survivorID survivorID
----@return NPC|nil
+---@return NPC?
 local function getNPC(survivorID)
     return PZNS.Core.NPC.registry[survivorID]
 end
@@ -86,7 +86,7 @@ function PZNS_NPCGroupsManager.deleteGroup(groupID)
         assert(npc, fmt("NPC not found! ID: %s", npc))
         assert(npc.groupID == groupID, fmt("NPC is not in group! ID: %s; groupID: %s", npc, groupID))
         if not npc then return end
-        NPC.setGroupID(npc, nil)
+        NPC.unsetGroupID(npc)
     end
     if group.factionID then
         print("Not yet implemented")
@@ -100,7 +100,7 @@ end
 
 --- Cows: Get a group by the input groupID.
 ---@param groupID groupID
----@return Group|nil
+---@return Group?
 function PZNS_NPCGroupsManager.getGroupByID(groupID)
     return getGroup(groupID)
 end
@@ -142,7 +142,9 @@ function PZNS_NPCGroupsManager.removeNPCFromGroup(groupID, survivorID)
     --
     if group then
         Group.removeMember(group, survivorID)
-        NPC.setGroupID(npc, nil)
+        if npc.groupID == groupID then
+            NPC.unsetGroupID(npc)
+        end
     end
 end
 

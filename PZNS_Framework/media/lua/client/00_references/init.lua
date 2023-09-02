@@ -19,11 +19,10 @@ PZNS.Core.Faction.registry = {}
 PZNS.Core.Zone.registry = {}
 
 
----Unique identifier for survivor
----@alias survivorID string
----Unique identifier for group
----@alias groupID string
----Unique identifier for faction
----@alias factionID string
----Unique identifier for zone
----@alias zoneID string
+---@alias survivorID string Unique identifier for survivor
+---@alias groupID string Unique identifier for group
+---@alias factionID string Unique identifier for faction
+---@alias zoneID string Unique identifier for zone
+
+
+--NOTE: NPCs share "sitting" state of the player, need to check

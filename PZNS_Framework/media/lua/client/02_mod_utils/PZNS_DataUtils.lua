@@ -92,5 +92,38 @@ PZNS_DataUtils.save = function(fname, data)
     fileWriterObj:close()
 end
 
+---clamp `n` between `_min` (0) and `max` (100)
+---@param n number
+---@param _min number?
+---@param _max number?
+---@return number result
+PZNS_DataUtils.clamp = function(n, _min, _max)
+    if not n then error("Missing value in clamp()") end
+    _min = _min or 0
+    _max = _max or 100
+    return math.min(math.max(n, _min), _max)
+end
+
+---roll chance from `_min` (1) to `_max` (100) for `oneIn`
+---@param oneIn integer chance to check ((`onein`/(`_max`+1-`_min`) * 100%)
+---@param _min integer? minimum value, inclusive
+---@param _max integer? maximum value, inclusive
+---@param retRoll boolean? if true - return `rolled` in 2nd arg
+---@return boolean passed whether roll was successful
+---@return integer? rolled rolled value, returned if `retRoll=true`
+PZNS_DataUtils.randomChance = function(oneIn, _min, _max, retRoll)
+    _min = _min or 1
+    _max = _max or 100
+    _max = _max + 1 -- ZombRand 2nd arg is exclusive
+    oneIn = PZNS_DataUtils.clamp(oneIn, _min, _max)
+    local rolled = ZombRand(_min, _max)
+    local passed = rolled < oneIn
+    if retRoll then
+        return passed, rolled
+    else
+        return passed
+    end
+end
+
 
 return PZNS_DataUtils

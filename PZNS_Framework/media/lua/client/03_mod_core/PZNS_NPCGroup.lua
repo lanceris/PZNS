@@ -16,7 +16,7 @@ local Group = {}
 ---@param leaderID survivorID
 ---@param members? table<survivorID>
 ---@param factionID? factionID
----@return {groupID: groupID, name: string, leaderID: survivorID?, members: table<survivorID>?, factionID: factionID?}
+---@return Group
 function Group:new(
     groupID,
     name,

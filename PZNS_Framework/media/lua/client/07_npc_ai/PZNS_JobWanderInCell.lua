@@ -8,7 +8,7 @@ local PZNS_GeneralAI = require("07_npc_ai/PZNS_GeneralAI");
 local chanceToStay = 30; -- Cows: Perhaps an option user can set?
 
 --- Cows: NPC will wander around in the current loaded cell.
----@param npcSurvivor any
+---@param npcSurvivor NPC
 function PZNS_JobWanderInCell(npcSurvivor)
     if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npcSurvivor) == false) then
         return;
