@@ -136,7 +136,11 @@ function PZNS_UtilsDataNPCs.PZNS_SpawnNPCFromModData(npcSurvivor)
             npcSurvivorDesc,
             npcSurvivor.squareX, npcSurvivor.squareY, npcSurvivor.squareZ
         );
-        --
+        -- Cows: Reset the ticks counter.
+        npcSurvivor.actionTicks = 0;
+        npcSurvivor.idleTicks = 0;
+        npcSurvivor.isStuckTicks = 0;
+        npcSurvivor.jobTicks = 0;
         npcSurvivor.npcIsoPlayerObject = npcIsoPlayerObject;
         npcSurvivor.npcIsoPlayerObject:load(npcFileName);
         npcSurvivor.npcIsoPlayerObject:setNPC(true);
@@ -168,23 +172,6 @@ end
 ---@deprecated
 function PZNS_UtilsDataNPCs.PZNS_ClearNPCModData()
     PZNS.Core.clearModData("npc")
-end
-
---- WIP - UNUSED CURRENTLY - Cows: Check if the NPC save file exists in the game save directory.
-function PZNS_UtilsDataNPCs.PZNS_CheckIfSaveFileExists(npcSurvivorID)
-    local npcFileName = PZNS_UtilsDataNPCs.PZNS_GetGameSaveDir() .. tostring(npcSurvivorID);
-    return false;
-end
-
---- WIP - UNUSED CURRENTLY - Cows: Called to clean up PZNS_ActiveNPCs moddata if save file doesn't exist for the NPC.
---- Cows: May be useless, because clean up is already done in PZNS_InitLoadNPCsData()
-function PZNS_UtilsDataNPCs.PZNS_RemoveAllNPCsWithoutSaveFile()
-    for npcSurvivorID, npcSurvivor in pairs(PZNS.Core.NPC.registry) do
-        local isFileExists = PZNS_UtilsDataNPCs.PZNS_CheckIfSaveFileExists(npcSurvivorID);
-        if (isFileExists == false) and npcSurvivor.isPlayer == false then
-            PZNS.Core.NPC.registry[npcSurvivorID] = nil
-        end
-    end
 end
 
 return PZNS_UtilsDataNPCs;
