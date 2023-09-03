@@ -4,6 +4,7 @@ require("03_mod_core/init")
 local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local NPC = require("03_mod_core/PZNS_NPCSurvivor")
+local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager")
 
 PZNS_ActiveInventoryNPC = {}; -- WIP - Cows: Need to rethink how Global variables are used...
 
@@ -150,13 +151,22 @@ function PZNS_NPCsManager.setGroupID(survivorID, groupID)
     NPC.setGroupID(npc, group.groupID)
 end
 
----Set NPC group ID to nil
+---Set NPC groupID to nil
 ---@param survivorID survivorID
 function PZNS_NPCsManager.unsetGroupID(survivorID)
     local npc = get(survivorID)
     verifyNPC(npc, survivorID)
     if not npc then return end
     NPC.unsetGroupID(npc)
+end
+
+---Set NPC factionID to nil
+---@param survivorID survivorID
+function PZNS_NPCsManager.unsetFactionID(survivorID)
+    local npc = get(survivorID)
+    verifyNPC(npc, survivorID)
+    if not npc then return end
+    NPC.unsetFactionID(npc)
 end
 
 --region relations
@@ -362,9 +372,10 @@ function PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(targetSquare, raider
         PZNS_UtilsNPCs.PZNS_AddEquipWeaponNPCSurvivor(raiderSurvivor, "Base.BaseballBat");
     end
     -- Cows: Set the job last, otherwise the NPC will function as if it didn't have a weapon.
-    raiderSurvivor.jobName = "Wander In Cell";
+    PZNS_UtilsNPCs.PZNS_SetNPCJob(raiderSurvivor, "Wander In Cell")
     local activeNPCs = PZNS.Core.NPC.registry
     activeNPCs[raiderSurvivorID] = raiderSurvivor; -- Cows: This saves it to modData, which allows the npc to run while in-game, but does not create a save file.
+    PZNS_UtilsDataNPCs.AddAI(raiderSurvivor)
     return raiderSurvivor;
 end
 
@@ -413,10 +424,37 @@ function PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare(targetSquare, survivorI
     end
     -- Cows: Set the job last, otherwise the NPC will function as if it didn't have a weapon.
     initialJob = initialJob == nil and "Wander In Cell" or initialJob
-    npcSurvivor.jobName = initialJob
+    PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, initialJob)
     local activeNPCs = PZNS.Core.NPC.registry
     activeNPCs[npcSurvivorID] = npcSurvivor; -- Cows: This saves it to modData, which allows the npc to run while in-game, but does not create a save file.
+    PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
     return npcSurvivor;
+end
+
+---Clean all NPC related data on their death
+---@param isoGameCharacter IsoGameCharacter
+function PZNS_NPCsManager.PZNS_CleanUpNPCData(isoGameCharacter)
+    if not instanceof(isoGameCharacter, "IsoPlayer") then return end
+    ---@cast isoGameCharacter IsoPlayer
+    local npcSurvivor = PZNS_NPCsManager.findNPCByIsoObject(isoGameCharacter)
+    if not npcSurvivor or npcSurvivor.isPlayer == true then return end
+    -- remove from faction
+    -- NPC.unsetFactionID(npcSurvivor)
+    -- remove from group
+    if npcSurvivor.groupID then
+        PZNS_NPCGroupsManager.removeNPCFromGroup(npcSurvivor.groupID, npcSurvivor.survivorID)
+    end
+    -- remove all relations
+    for relatedSurvivorID, relation in pairs(npcSurvivor.relationsMap) do
+        local relatedNPC = get(relatedSurvivorID)
+        if relatedNPC then
+            NPC.removeRelationTo(relatedNPC, npcSurvivor.survivorID)
+        end
+    end
+    -- remove save data
+    PZNS_UtilsDataNPCs.PZNS_RemoveNPCSaveData(npcSurvivor)
+    -- unschedule AI updates for npc
+    PZNS_UtilsDataNPCs.RemoveAI(npcSurvivor)
 end
 
 return PZNS_NPCsManager;

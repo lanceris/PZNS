@@ -1,9 +1,15 @@
 require("00_references/init")
+require("11_events_spawning/PZNS_EventManager")
 local PZNS_CombatUtils = require("02_mod_utils/PZNS_CombatUtils");
 local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils")
 local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_WorldUtils = require("02_mod_utils/PZNS_WorldUtils");
+local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager")
+
+Events.EveryOneMinute.Add(PZNS.AI._updateEveryXGameMinutes)
+Events.OnTick.Add(PZNS.AI._updateOnTick)
+Events.OnRenderTick.Add(PZNS.AI._updateOnRenderTick)
 
 -- Cows: Sandbox Options if needed
 Events.OnInitGlobalModData.Add(PZNS_GetSandboxOptions);
@@ -35,8 +41,10 @@ local function PZNS_Events()
     -- Cows: May need to change this to OnPlayerUpdate to address https://github.com/shadowhunter100/PZNS/issues/34...
     -- Cows: Maybe not, since the NPCs will be unloaded much more aggressively/sooner at 45 squares, will confirm after more testing.
     Events.EveryOneMinute.Add(PZNS_WorldUtils.PZNS_SpawnNPCIfSquareIsLoaded);
-    Events.OnRenderTick.Add(PZNS_UpdateAllJobsRoutines);
-    Events.OnRenderTick.Add(PZNS_RenderNPCsText);
+    -- Events.OnTick.Add(PZNS_UpdateAllJobsRoutines);
+    -- Events.OnRenderTick.Add(PZNS_RenderNPCsText);
+    -- Unregister updates for NPC and clean-up data
+    Events.OnCharacterDeath.Add(PZNS_NPCsManager.PZNS_CleanUpNPCData)
 end
 
 Events.OnGameStart.Add(PZNS_Events);

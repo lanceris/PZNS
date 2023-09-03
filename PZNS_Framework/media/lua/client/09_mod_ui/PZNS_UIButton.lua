@@ -79,24 +79,28 @@ local function reload(key)
     local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager")
     local PZNS_CombatUtils = require("02_mod_utils/PZNS_CombatUtils")
 
-    if key == Keyboard.KEY_E then
-        local clickedOnSquare = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(0)
-        local raider = PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(clickedOnSquare)
-        cur = raider
-    end
+    -- if key == Keyboard.KEY_E then
+    --     local raider = PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(clickedOnSquare)
+    --     cur = raider
+    -- end
     if key == Keyboard.KEY_Z then
+        local clickedOnSquare = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(0)
         local playerNPC = PZNS_PlayerUtils.getPlayerNPC(0)
         -- local rolledPart, chanceToHit = calcHitPart(true, 5, 0)
 
-        if not cur or not PZNS_NPCsManager.findNPCByIsoObject(cur.npcIsoPlayerObject) or cur and not cur.npcIsoPlayerObject:isAlive() then
-            local clickedOnSquare = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(0)
-            local raider = PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(clickedOnSquare)
-            cur = raider
-        end
-        local weapon = playerNPC.npcIsoPlayerObject:getPrimaryHandItem() --[[@as HandWeapon]]
-        if not weapon then weapon = InventoryItemFactory.CreateItem("Base.BareHands") end
-        PZNS_CombatUtils.PZNS_CalculatePlayerDamage(playerNPC.npcIsoPlayerObject, cur.npcIsoPlayerObject,
-            weapon, 1)
+        -- if not cur or not PZNS_NPCsManager.findNPCByIsoObject(cur.npcIsoPlayerObject) or cur and not cur.npcIsoPlayerObject:isAlive() then
+        --     local clickedOnSquare = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(0)
+        --     local raider = PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(clickedOnSquare)
+        --     cur = raider
+        -- end
+        -- local weapon = playerNPC.npcIsoPlayerObject:getPrimaryHandItem() --[[@as HandWeapon]]
+        -- if not weapon then weapon = InventoryItemFactory.CreateItem("Base.BareHands") end
+        -- PZNS_CombatUtils.PZNS_CalculatePlayerDamage(playerNPC.npcIsoPlayerObject, cur.npcIsoPlayerObject,
+        --     weapon, 1)
+        local npc = PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare(clickedOnSquare)
+        -- PZNS_UtilsNPCs.PZNS_SetNPCFollowTargetID(npc, playerNPC.survivorID);
+        PZNS_NPCGroupsManager.addNPCToGroup(npc, playerNPC.groupID)
+        PZNS_UtilsNPCs.PZNS_SetNPCJob(npc, "Guard")
     end
 end
 

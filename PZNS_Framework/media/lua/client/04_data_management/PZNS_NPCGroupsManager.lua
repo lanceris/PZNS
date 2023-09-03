@@ -83,8 +83,8 @@ function PZNS_NPCGroupsManager.deleteGroup(groupID)
     local members = Group.getMembers(group)
     for i = 1, #members do
         local npc = getNPC(members[i])
-        assert(npc, fmt("NPC not found! ID: %s", npc))
-        assert(npc.groupID == groupID, fmt("NPC is not in group! ID: %s; groupID: %s", npc, groupID))
+        assert(npc, fmt("NPC not found! ID: %s", members[i]))
+        assert(npc.groupID == groupID, fmt("NPC is not in group! ID: %s; groupID: %s", npc.survivorID, groupID))
         if not npc then return end
         NPC.unsetGroupID(npc)
     end
@@ -137,8 +137,12 @@ function PZNS_NPCGroupsManager.removeNPCFromGroup(groupID, survivorID)
     verifyGroup(groupID)
     if not group then return end
     local npc = getNPC(survivorID)
-    assert(npc, fmt("NPC not found! ID: %s", npc))
-    assert(npc.groupID == groupID, fmt("NPC is not in group! ID: %s; groupID: %s", npc, groupID))
+
+    if not npc then
+        print("NPC not found! ID: %s", npc)
+        return
+    end
+    assert(npc.groupID == groupID, fmt("NPC is not in group! ID: %s; groupID: %s", survivorID, groupID))
     --
     if group then
         Group.removeMember(group, survivorID)
@@ -153,7 +157,7 @@ end
 ---@return table<survivorID?>
 function PZNS_NPCGroupsManager.getMembers(groupID)
     local group = getGroup(groupID)
-    verifyGroup(groupID)
+    -- verifyGroup(groupID)
     if not group then return {} end
     return Group.getMembers(group)
 end
@@ -172,9 +176,12 @@ function PZNS_NPCGroupsManager.setLeader(groupID, leaderID)
     verifyGroup(groupID)
     if not group then return end
     local npc = getNPC(leaderID)
-    assert(npc, fmt("NPC not found! leaderID: %s; groupID: %s", leaderID, groupID))
+    if not npc then
+        print(fmt("NPC not found! leaderID: %s; groupID: %s", leaderID, groupID))
+        return
+    end
     assert(not npc.groupID or npc.groupID == npc.groupID,
-        "NPC is already a member of another group! leaderID: %s; groupID: %s", leaderID, groupID)
+        fmt("NPC is already a member of another group! leaderID: %s; groupID: %s", leaderID, groupID))
 
     if group.leaderID == leaderID then
         print(fmt("NPC is already the leader! leaderID: %s; groupID: %s", leaderID, groupID))

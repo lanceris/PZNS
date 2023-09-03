@@ -97,3 +97,18 @@ function PZNS_RenderNPCsText()
         end
     end -- Cows: End for-loop Active NPCs
 end
+
+---comment
+---@param npc NPC
+function PZNS_RenderNPCsTextFor(npc)
+    if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npc) == true) then
+        if (npc.textObject) then
+            -- Cows: Clear any speech text if over 300 ticks.
+            if (npc.speechTicks > 300) then
+                resetSpeechText(npc);
+            end
+            npc.speechTicks = npc.speechTicks + 1;
+            drawSpeechText(npc);
+        end
+    end
+end

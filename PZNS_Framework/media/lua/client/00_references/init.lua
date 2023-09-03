@@ -3,6 +3,8 @@ PZNS.Core = PZNS.Core or {}
 PZNS.Context = PZNS.Context or {}
 PZNS.Context.Debug = PZNS.Context.Debug or {}
 PZNS.UI = PZNS.UI or {}
+PZNS.AI = PZNS.AI or {}
+PZNS.Options = PZNS.Options or {}
 
 PZNS.Core.NPC = {}
 PZNS.Core.Group = {}

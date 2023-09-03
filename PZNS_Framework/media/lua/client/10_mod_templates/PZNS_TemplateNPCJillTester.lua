@@ -69,6 +69,7 @@ function PZNS_SpawnJillTester(playerSurvivor, square, addToPlayerGroup)
             end
 
             PZNS_UtilsDataNPCs.PZNS_SaveNPCData(npcSurvivorID, npcSurvivor);
+            PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
         end
     end
 end

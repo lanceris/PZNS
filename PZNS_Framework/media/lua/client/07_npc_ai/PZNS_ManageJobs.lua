@@ -95,6 +95,12 @@ function PZNS_UpdateAllJobsRoutines()
     end
 end
 
+---Update job routine for specific NPC
+---@param npc NPC
+function PZNS.AI.UpdateJobRoutineFor(npc)
+    PZNS_UpdateNPCJobRoutine(npc)
+end
+
 local PZNS_ManageJobs = {};
 
 --- Cows: Input a JobName (without space) and associated JobFunction to make the NPC run on a custom job AI.

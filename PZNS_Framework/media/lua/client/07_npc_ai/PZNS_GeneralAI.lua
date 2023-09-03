@@ -1,5 +1,6 @@
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_WorldUtils = require("02_mod_utils/PZNS_WorldUtils");
+local PZNS_CombatUtils = require("02_mod_utils/PZNS_CombatUtils")
 
 --[[
     Cows: This file is intended for "general" purpose AI that is applicable to all jobs and job routines.
@@ -116,7 +117,8 @@ function PZNS_GeneralAI.PZNS_CanSeeAimTarget(npcSurvivor)
             npcSurvivor.aimTarget
         );
         if (distanceFromTarget <= aimRange) then
-            return npcIsoPlayer:CanSee(npcSurvivor.aimTarget); -- Cows: "vision cone" isn't a thing for NPCs... they can "see" the world objects without facing them.
+            return PZNS_CombatUtils.canSee(npcIsoPlayer, npcSurvivor.aimTarget)
+            -- return npcIsoPlayer:CanSee(npcSurvivor.aimTarget); -- Cows: "vision cone" isn't a thing for NPCs... they can "see" the world objects without facing them.
         end
     end
 
@@ -132,7 +134,7 @@ function PZNS_GeneralAI.PZNS_NPCAimAttack(npcSurvivor)
     end
     -- Cows: Can only aim and/or attack aimTarget exists
     if (npcSurvivor.aimTarget ~= nil) then
-        -- WIP - Cows: Should add a check to see if enemy is in range... 
+        -- WIP - Cows: Should add a check to see if enemy is in range...
         PZNS_WeaponAiming(npcSurvivor); -- Cows: Aim before attacking
         PZNS_WeaponAttack(npcSurvivor); -- Cows: Permission to attack is handled in the function.
     end
@@ -153,7 +155,8 @@ function PZNS_GeneralAI.PZNS_CheckForThreats(npcSurvivor)
     -- Cows: Check if npcSurvivor currently has an aimed threat
     if (priorityThreatObject ~= nil) then
         --
-        local canSeeTarget = npcIsoPlayer:CanSee(priorityThreatObject);
+        -- local canSeeTarget = npcIsoPlayer:CanSee(priorityThreatObject);
+        local canSeeTarget = PZNS_CombatUtils.canSee(npcIsoPlayer, priorityThreatObject)
         local isOnSameFloorLevel = priorityThreatObject:getZ() == npcIsoPlayer:getZ();
         priorityThreatDistance = PZNS_WorldUtils.PZNS_GetDistanceBetweenTwoObjects(npcIsoPlayer, priorityThreatObject);
         -- Cows: Stop if the nearest threat is less than 3 squares away... need to prepare to run or attack.
@@ -173,7 +176,8 @@ function PZNS_GeneralAI.PZNS_CheckForThreats(npcSurvivor)
     -- Cows: Check if the NPC is hostile to the player ge.
     if (isNPCHostileToPlayer == true) then
         distanceFromPlayerSurvivor = PZNS_WorldUtils.PZNS_GetDistanceBetweenTwoObjects(npcIsoPlayer, playerSurvivor);
-        local canSeeTarget = npcIsoPlayer:CanSee(playerSurvivor);
+        -- local canSeeTarget = npcIsoPlayer:CanSee(playerSurvivor);
+        local canSeeTarget = PZNS_CombatUtils.canSee(npcIsoPlayer, playerSurvivor)
         -- Check if the player is inside the spotting range
         if (canSeeTarget == true and distanceFromPlayerSurvivor < spottingRange) then
             priorityThreatDistance = distanceFromPlayerSurvivor;
@@ -190,7 +194,8 @@ function PZNS_GeneralAI.PZNS_CheckForThreats(npcSurvivor)
                 local currentThreatDistance = PZNS_WorldUtils.PZNS_GetDistanceBetweenTwoObjects(npcIsoPlayer, zombie);
                 local isOnSameFloorLevel = zombie:getZ() == npcIsoPlayer:getZ();
                 local isTargetInAimRange = currentThreatDistance < aimRange;
-                local canSeeTarget = npcIsoPlayer:CanSee(zombie); -- Cows: "vision cone" isn't a thing for NPCs... they can "see" the world objects without facing them.
+                local canSeeTarget = PZNS_CombatUtils.canSee(npcIsoPlayer, zombie)
+                -- local canSeeTarget = npcIsoPlayer:CanSee(zombie); -- Cows: "vision cone" isn't a thing for NPCs... they can "see" the world objects without facing them.
                 --
                 if (canSeeTarget == true and currentThreatDistance < spottingRange) then
                     isThreatExist = true;
@@ -223,7 +228,8 @@ function PZNS_GeneralAI.PZNS_CheckForThreats(npcSurvivor)
             local isNPCHostileToTargetNPC = PZNS_GeneralAI.PZNS_IsNPCHostileToTargetNPC(npcSurvivor, targetNPCSurvivor);
             if (npcIsoPlayer:getModData().survivorID ~= npcID) then
                 if (isNPCHostileToTargetNPC == true) then
-                    local canSeeTarget = npcIsoPlayer:CanSee(targetIsoPlayer);
+                    -- local canSeeTarget = npcIsoPlayer:CanSee(targetIsoPlayer);
+                    local canSeeTarget = PZNS_CombatUtils.canSee(npcIsoPlayer, targetIsoPlayer)
                     local distanceFromTargetNPC = PZNS_WorldUtils.PZNS_GetDistanceBetweenTwoObjects(npcIsoPlayer,
                         targetIsoPlayer);
                     --
@@ -247,6 +253,17 @@ function PZNS_GeneralAI.PZNS_CheckForThreats(npcSurvivor)
     return isThreatExist;
 end
 
+---comments
+---@param npcSurvivor NPC
+---@param value integer
+local function updateAIRate(npcSurvivor, value)
+    if npcSurvivor.AIUpdateRate == value then return end
+    print(string.format("Changing AI update rate from %s to %s for %s", npcSurvivor.AIUpdateRate, value,
+        npcSurvivor.survivorName))
+    PZNS.AI.UpdateScheduleRate("OnTick", npcSurvivor.AIScheduleName, value)
+    npcSurvivor.AIUpdateRate = value
+end
+
 --- Cows: This function forces the npcSurvivor to look for threats nearby.
 ---@param npcSurvivor any
 ---@return boolean
@@ -258,14 +275,14 @@ function PZNS_GeneralAI.PZNS_NPCFoundThreat(npcSurvivor)
     local isThreatInSight = PZNS_GeneralAI.PZNS_CanSeeAimTarget(npcSurvivor);
     -- Cows: check if any threats are found.
     if (isThreatInSight == true) then
-        -- PZNS_NPCSpeak(npcSurvivor, "Threat is in Sight! Now Busy in combat", "InfoOnly");
+        PZNS_NPCSpeak(npcSurvivor, "Threat is in Sight! Now Busy in combat", "InfoOnly");
         return true;
     end
     -- Cows: Check for other threats
     local isThreatFound = PZNS_GeneralAI.PZNS_CheckForThreats(npcSurvivor);
     -- Cows: check if any threats are found.
     if (isThreatFound == true) then
-        -- PZNS_NPCSpeak(npcSurvivor, "Threat Found! Now Busy in combat", "InfoOnly");
+        PZNS_NPCSpeak(npcSurvivor, "Threat Found! Now Busy in combat", "InfoOnly");
         return true;
     end
     return false;
@@ -286,6 +303,7 @@ function PZNS_GeneralAI.PZNS_IsNPCBusyCombat(npcSurvivor)
     local isReloadNeeded = PZNS_GeneralAI.PZNS_IsReloadNeeded(npcSurvivor);
     if (isReloadNeeded == true) then
         -- Cows: only do a "full" reload every 100 - 150 ticks or so, otherwise it will be spammed and cause the NPC to become stuck due to animations.
+        updateAIRate(npcSurvivor, PZNS.Options.NPCAIUpdateRateByState["MediumThreat"])
         local ticksCheck = ZombRand(100, 150);
         if (npcSurvivor.actionTicks == ticksCheck) then
             PZNS_WeaponReload(npcSurvivor);
@@ -299,6 +317,7 @@ function PZNS_GeneralAI.PZNS_IsNPCBusyCombat(npcSurvivor)
     --
     local isThreatFound = PZNS_GeneralAI.PZNS_NPCFoundThreat(npcSurvivor);
     if (isThreatFound == true) then
+        updateAIRate(npcSurvivor, PZNS.Options.NPCAIUpdateRateByState["HighThreat"])
         PZNS_GeneralAI.PZNS_NPCAimAttack(npcSurvivor);
         npcSurvivor.idleTicks = 0;
         return true; -- Cows: Stop processing and start attacking.
@@ -309,6 +328,8 @@ function PZNS_GeneralAI.PZNS_IsNPCBusyCombat(npcSurvivor)
     if (npcIsoPlayer:NPCGetAiming() == true) then
         npcIsoPlayer:NPCSetAiming(false);
     end
+    updateAIRate(npcSurvivor, PZNS.Options.NPCAIUpdateRateByState[npcSurvivor.jobName] or
+        npcSurvivor.AIDefaultUpdateRate)
     return false;
 end
 

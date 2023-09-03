@@ -278,6 +278,11 @@ function PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, jobName)
     end
 
     if (jobName) then
+        if npcSurvivor.AIScheduleName then
+            local newRate = PZNS.Options.NPCAIUpdateRateByState[jobName] or npcSurvivor.AIDefaultUpdateRate
+            PZNS.AI.UpdateScheduleRate("OnTick", npcSurvivor.AIScheduleName, newRate)
+            npcSurvivor.AIUpdateRate = newRate
+        end
         npcSurvivor.jobName = jobName;
     end
 end

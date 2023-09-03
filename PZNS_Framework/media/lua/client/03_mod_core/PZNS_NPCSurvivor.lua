@@ -50,6 +50,10 @@ require("00_references/init")
 ---@field squareY integer?              Cows: Placeholder; technically part of IsoPlayer; used when PZNS needs to use it before IsoPlayer is loaded.
 ---@field squareZ integer?              Cows: Placeholder; technically part of IsoPlayer; used when PZNS needs to use it before IsoPlayer is loaded.
 ---@field npcIsoPlayerObject IsoPlayer  Cows: objects cannot be saved to moddata...
+---AI
+---@field AIDefaultUpdateRate integer Initial update rate for NPC AI in milliseconds
+---@field AIUpdateRate integer        Update rate for NPC AI in milliseconds
+---@field AIScheduleName string       Name of scheduled AI update task for this NPC
 local NPC = {}
 
 --- Cows: Construct the PZNS_NPCSurvivor.
@@ -113,7 +117,11 @@ function NPC:new(
         squareX = nil,
         squareY = nil,
         squareZ = nil,
-        npcIsoPlayerObject = npcIsoPlayerObject
+        npcIsoPlayerObject = npcIsoPlayerObject,
+        --- AI ---
+        AIDefaultUpdateRate = 50,
+        AIUpdateRate = 50,
+        AIScheduleName = nil
     };
 
     setmetatable(npcSurvivor, self);
@@ -131,6 +139,17 @@ end
 ---Unassign groupID from NPC
 function NPC:unsetGroupID()
     self.groupID = nil
+end
+
+---Assigns factionID to NPC
+---@param factionID factionID
+function NPC:setFactionID(factionID)
+    self.factionID = factionID
+end
+
+---Unassign factionID from NPC
+function NPC:unsetFactionID()
+    self.factionID = nil
 end
 
 ---comments
@@ -197,6 +216,14 @@ end
 ---@return integer?
 function NPC:getAnonRelationTo(otherSurvivorID)
     return self.anonymousMap[otherSurvivorID]
+end
+
+function NPC:removeRelationTo(otherSurvivorID)
+    self.relationsMap[otherSurvivorID] = nil
+end
+
+function NPC:removeAnonRelationTo(otherSurvivorID)
+    self.anonymousMap[otherSurvivorID] = nil
 end
 
 --endregion

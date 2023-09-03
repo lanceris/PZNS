@@ -3,6 +3,7 @@
     and editing of all NPC mod file data and moddata.
 --]]
 require("00_references/init")
+require("11_events_spawning/PZNS_EventManager")
 -- Cows: This variable should never be referenced directly, but through the corresponding management functions.
 local PZNS_UtilsDataNPCs = {};
 
@@ -153,7 +154,10 @@ function PZNS_UtilsDataNPCs.PZNS_SpawnNPCFromModData(npcSurvivor)
         npcSurvivor.textObject:ReadString(npcSurvivor.survivorName);
         npcSurvivor.isSavedInWorld = false;
         npcSurvivor.isSpawned = true;
+        -- schedule AI updates for npc
+        PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
     end
+
     return npcSurvivor;
 end
 
@@ -173,6 +177,27 @@ end
 ---@deprecated
 function PZNS_UtilsDataNPCs.PZNS_ClearNPCModData()
     PZNS.Core.clearModData("npc")
+end
+
+---Register AI handlers for NPC
+---@param npcSurvivor NPC
+function PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
+    print("Adding AI triggers for" .. npcSurvivor.survivorID)
+    local scheduleName = "MainUpdate_" .. npcSurvivor.survivorID
+    local updRate = PZNS.Options.NPCAIUpdateRateByState[npcSurvivor.jobName] or npcSurvivor.AIDefaultUpdateRate
+    npcSurvivor.AIUpdateRate = updRate
+    npcSurvivor.AIScheduleName = scheduleName
+    PZNS.AI.AddToSchedule("OnTick", scheduleName, PZNS.AI.UpdateJobRoutineFor, updRate, { npcSurvivor })
+    PZNS.AI.AddToSchedule("OnRenderTick", scheduleName, PZNS_RenderNPCsTextFor, nil, { npcSurvivor })
+end
+
+---Unregister AI handlers for NPC
+---@param npcSurvivor NPC
+function PZNS_UtilsDataNPCs.RemoveAI(npcSurvivor)
+    print("Removing AI triggers for" .. npcSurvivor.survivorID)
+    local scheduleName = "MainUpdate_" .. npcSurvivor.survivorID
+    PZNS.AI.RemoveFromSchedule("OnTick", scheduleName)
+    PZNS.AI.RemoveFromSchedule("OnRenderTick", scheduleName)
 end
 
 return PZNS_UtilsDataNPCs;
