@@ -180,8 +180,8 @@ local function calcHitPart(isFirearm, aimingLevel, meleeWeaponLevel)
 end
 
 ---Change relations between NPCs after hostile encounter
----@param npcSurvivorVictim NPC
----@param npcSurvivorWielder NPC
+---@param npcSurvivorVictim PZNS_NPCSurvivor
+---@param npcSurvivorWielder PZNS_NPCSurvivor
 ---@param severity float damage severity (light bruise or missing ribs)
 local function handleRelations(npcSurvivorVictim, npcSurvivorWielder, severity, canSee)
     -- Transient NPCs might become persistent in the future (e.g inviting to group)

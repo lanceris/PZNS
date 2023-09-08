@@ -24,7 +24,7 @@ end
 
 ---comment
 ---@param mpPlayerID integer
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@return ItemContainer | nil
 local function openNPCInventory(mpPlayerID, npcSurvivor)
     if (npcSurvivor == nil) then
@@ -39,7 +39,7 @@ end
 --- Cows: mpPlayerID is a placeholder, it always defaults to 0 in local.
 ---@param context any
 ---@param worldobjects any
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 function PZNS.Context.NPCInventoryOptions(context, worldobjects, playerSurvivor)
     local inventorySubMenu_1 = context:getNew(context);
     local inventorySubMenu_1_Option = context:addOption(

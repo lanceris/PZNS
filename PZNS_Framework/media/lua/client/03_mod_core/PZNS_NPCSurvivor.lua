@@ -1,6 +1,6 @@
 require("00_references/init")
 
----@class NPC
+---@class PZNS_NPCSurvivor
 ---@field survivorID survivorID               Unique identifier for this NPC
 ---@field mpPlayerID integer?                 playerNum if `isPlayer=true`
 ---@field groupID groupID?                    Unique identifier of the group this NPC belongs to, if any
@@ -54,14 +54,14 @@ require("00_references/init")
 ---@field AIDefaultUpdateRate integer Initial update rate for NPC AI in milliseconds
 ---@field AIUpdateRate integer        Update rate for NPC AI in milliseconds
 ---@field AIScheduleName string       Name of scheduled AI update task for this NPC
-local NPC = {}
+local PZNS_NPCSurvivor = {}
 
 --- Cows: Construct the PZNS_NPCSurvivor.
 ---@param survivorID survivorID         -- Cows: Unique Identifier for the current NPC
 ---@param survivorName any              -- Cows: Current NPC's name
 ---@param npcIsoPlayerObject IsoPlayer  -- Cows: The actual IsoPlayer object the current NPC is spawned in as. NPCUtils will mostly interact with this object.
 ---@return table
-function NPC:new(
+function PZNS_NPCSurvivor:new(
     survivorID,
     survivorName,
     npcIsoPlayerObject
@@ -132,19 +132,19 @@ end
 
 ---Assigns groupID to NPC
 ---@param groupID groupID?
-function NPC:setGroupID(groupID)
+function PZNS_NPCSurvivor:setGroupID(groupID)
     self.groupID = groupID
 end
 
 ---Assigns factionID to NPC
 ---@param factionID factionID?
-function NPC:setFactionID(factionID)
+function PZNS_NPCSurvivor:setFactionID(factionID)
     self.factionID = factionID
 end
 
 ---comments
 ---@param mpPlayerID integer
-function NPC:setPlayerNum(mpPlayerID)
+function PZNS_NPCSurvivor:setPlayerNum(mpPlayerID)
     local requestedIsoPlayer = getSpecificPlayer(mpPlayerID)
     if requestedIsoPlayer then
         print("Can't find specific player, num: " .. tostring(mpPlayerID))
@@ -165,7 +165,7 @@ end
 ---@param otherSurvivorID survivorID survivor to change relation to
 ---@param diff integer change amount
 ---@return boolean isNewRelation whether this relation is new (first meet)
-function NPC:changeRelation(otherSurvivorID, diff)
+function PZNS_NPCSurvivor:changeRelation(otherSurvivorID, diff)
     --TODO: periodic(?) cleanings for nil NPC (dead etc)
     local relation = self.relationsMap[otherSurvivorID]
     local isNewRelation = false
@@ -186,7 +186,7 @@ end
 ---@param otherSurvivorID any
 ---@param diff integer
 ---@return boolean isNewRelation whether this anon relation is new (first seen)
-function NPC:changeAnonRelation(otherSurvivorID, diff)
+function PZNS_NPCSurvivor:changeAnonRelation(otherSurvivorID, diff)
     local relation = self.anonymousMap[otherSurvivorID]
     local newRelation
     local isNewRelation = false
@@ -203,25 +203,25 @@ end
 ---Get relation to `otherSurvivorID`
 ---@param otherSurvivorID survivorID
 ---@return integer?
-function NPC:getRelationTo(otherSurvivorID)
+function PZNS_NPCSurvivor:getRelationTo(otherSurvivorID)
     return self.relationsMap[otherSurvivorID]
 end
 
 ---Get anonymous relation to `otherSurvivorID`
 ---@param otherSurvivorID survivorID
 ---@return integer?
-function NPC:getAnonRelationTo(otherSurvivorID)
+function PZNS_NPCSurvivor:getAnonRelationTo(otherSurvivorID)
     return self.anonymousMap[otherSurvivorID]
 end
 
-function NPC:removeRelationTo(otherSurvivorID)
+function PZNS_NPCSurvivor:removeRelationTo(otherSurvivorID)
     self.relationsMap[otherSurvivorID] = nil
 end
 
-function NPC:removeAnonRelationTo(otherSurvivorID)
+function PZNS_NPCSurvivor:removeAnonRelationTo(otherSurvivorID)
     self.anonymousMap[otherSurvivorID] = nil
 end
 
 --endregion
 
-return NPC
+return PZNS_NPCSurvivor

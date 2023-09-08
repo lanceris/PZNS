@@ -1,7 +1,6 @@
 require("03_mod_core/init")
 
 local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
-local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils");
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
 local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager");
 
@@ -21,7 +20,7 @@ end
 ---comment
 ---@param context any
 ---@param worldobjects any
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 ---@param square IsoGridSquare Clicked on cell
 function PZNS.Context.InviteOptions(context, worldobjects, playerSurvivor, square)
     local invitableCount = 0;

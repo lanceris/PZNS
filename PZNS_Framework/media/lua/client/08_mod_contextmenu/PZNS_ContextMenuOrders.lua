@@ -1,5 +1,4 @@
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
-local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils");
 local PZNS_PresetsSpeeches = require("03_mod_core/PZNS_PresetsSpeeches");
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
 
@@ -80,7 +79,7 @@ end
 ---comment
 ---@param parentContextMenu any
 ---@param orderKey any
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 ---@param playerGroupMembers table<survivorID?>
 ---@param square IsoGridSquare
 ---@return any
@@ -116,7 +115,7 @@ end
 ---comment
 ---@param context any
 ---@param worldobjects any
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 function PZNS.Context.OrdersOptions(context, worldobjects, playerSurvivor, square)
     local orderSubMenu = context:getNew(context);
     local orderSubMenu_Option = context:addOption(

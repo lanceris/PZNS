@@ -1,12 +1,11 @@
 require("00_references/init")
+local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager")
 
 local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
-local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager")
-local NPC = require("03_mod_core/PZNS_NPCSurvivor")
-local Group = require("03_mod_core/PZNS_NPCGroup")
-
-local u = require("02_mod_utils/PZNS_Utils")
+local PZNS_Utils = require("02_mod_utils/PZNS_Utils")
+local PZNS_NPCSurvivor = require("03_mod_core/PZNS_NPCSurvivor")
+local PZNS_NPCGroup = require("03_mod_core/PZNS_NPCGroup")
 
 PZNS_ActiveInventoryNPC = {}; -- WIP - Cows: Need to rethink how Global variables are used...
 
@@ -14,14 +13,14 @@ local PZNS_NPCsManager = {};
 
 ---Get NPC by its survivorID
 ---@param survivorID survivorID
----@return NPC?
+---@return PZNS_NPCSurvivor?
 function PZNS_NPCsManager.getNPC(survivorID)
-    return u.getNPC(survivorID)
+    return PZNS_Utils.getNPC(survivorID)
 end
 
 ---Try to find NPC by its isoObject
 ---@param isoPlayer IsoPlayer
----@return NPC?
+---@return PZNS_NPCSurvivor?
 function PZNS_NPCsManager.findNPCByIsoObject(isoPlayer)
     local activeNPCs = PZNS.Core.NPC.registry
     for _, npc in pairs(activeNPCs) do
@@ -72,7 +71,7 @@ end
 ---@param forename string
 ---@param square IsoGridSquare Square that NPC will spawn on
 ---@param isoPlayer IsoPlayer? if passed - skip IsoPlayer creation
----@return NPC
+---@return PZNS_NPCSurvivor
 function PZNS_NPCsManager.createNPCSurvivor(
     survivorID,
     isFemale,
@@ -87,7 +86,7 @@ function PZNS_NPCsManager.createNPCSurvivor(
     end
     local npcSurvivor = nil;
     -- Cows: Now add the npcSurvivor to the PZNS_NPCsManager if the ID does not exist.
-    local npc = u.getNPC(survivorID)
+    local npc = PZNS_Utils.getNPC(survivorID)
     local squareZ = 0
     if (not npc) then
         local survivorName = forename .. " " .. surname; -- Cows: in case getName() functions break down or can't be used...
@@ -103,8 +102,8 @@ function PZNS_NPCsManager.createNPCSurvivor(
             end
         end
 
-        ---@type NPC
-        npcSurvivor = NPC:new(
+        ---@type PZNS_NPCSurvivor
+        npcSurvivor = PZNS_NPCSurvivor:new(
             survivorID,
             survivorName,
             isoPlayer
@@ -138,21 +137,21 @@ end
 ---@param survivorID survivorID
 ---@param groupID groupID? leave empty to unset group
 function PZNS_NPCsManager.setGroupID(survivorID, groupID)
-    local npc = u.getNPC(survivorID)
-    if not u.npcCheck(npc, survivorID) then return end ---@cast npc NPC
+    local npc = PZNS_Utils.getNPC(survivorID)
+    if not PZNS_Utils.npcCheck(npc, survivorID) then return end ---@cast npc PZNS_NPCSurvivor
     if groupID then
-        local group = u.getGroup(groupID)
-        if not u.groupCheck(group, groupID) then return end
-        if not Group.isMember(group, survivorID) then
-            Group.addMember(group, survivorID)
+        local group = PZNS_Utils.getGroup(groupID)
+        if not PZNS_Utils.groupCheck(group, groupID) then return end
+        if not PZNS_NPCGroup.isMember(group, survivorID) then
+            PZNS_NPCGroup.addMember(group, survivorID)
         end
     end
-    NPC.setGroupID(npc, groupID)
+    PZNS_NPCSurvivor.setGroupID(npc, groupID)
 end
 
 ---Cows: Get a npcSurvivor by specified survivorID
 ---@param survivorID survivorID
----@return NPC?
+---@return PZNS_NPCSurvivor?
 function PZNS_NPCsManager.getActiveNPCBySurvivorID(survivorID)
     local activeNPCs = PZNS.Core.NPC.registry
     if (activeNPCs[survivorID] ~= nil) then
@@ -192,7 +191,7 @@ end
 --- Cows: Go make your own random spawns, this is an example for debugging and testing.
 ---@param targetSquare IsoGridSquare square to spawn NPC on
 ---@param raiderID string | nil if provided - will be used as survivorID for NPC
----@return NPC raider created raider NPC
+---@return PZNS_NPCSurvivor raider created raider NPC
 function PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(targetSquare, raiderID)
     local isFemale = ZombRand(100) > 50; -- Cows: 50/50 roll for female spawn
     local raiderForeName = SurvivorFactory.getRandomForename(isFemale);
@@ -251,7 +250,7 @@ end
 --- Cows: Go make your own random spawns, this is an example for debugging and testing.
 ---@param targetSquare IsoGridSquare square to spawn NPC on
 ---@param survivorID string | nil if provided - will be used as survivorID for NPC
----@return NPC survivor created survivor NPC
+---@return PZNS_NPCSurvivor survivor created survivor NPC
 function PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare(targetSquare, survivorID)
     local isFemale = ZombRand(100) > 50; -- Cows: 50/50 roll for female spawn
     local npcForeName = SurvivorFactory.getRandomForename(isFemale);
@@ -312,9 +311,9 @@ function PZNS_NPCsManager.PZNS_CleanUpNPCData(isoGameCharacter)
     end
     -- remove all relations
     for relatedSurvivorID, relation in pairs(npcSurvivor.relationsMap) do
-        local relatedNPC = u.getNPC(relatedSurvivorID)
+        local relatedNPC = PZNS_Utils.getNPC(relatedSurvivorID)
         if relatedNPC then
-            NPC.removeRelationTo(relatedNPC, npcSurvivor.survivorID)
+            PZNS_NPCSurvivor.removeRelationTo(relatedNPC, npcSurvivor.survivorID)
         end
     end
     -- remove save data

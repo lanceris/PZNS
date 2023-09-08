@@ -3,7 +3,7 @@ local PZNS_PresetsSpeeches = require("03_mod_core/PZNS_PresetsSpeeches");
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager");
 
 
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param parentContextMenu any
 ---@param jobName string
 ---@param followTargetID survivorID
@@ -36,7 +36,7 @@ end
 ---comment
 ---@param parentContextMenu any
 ---@param jobName string
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 ---@param groupMembers table<survivorID?>
 ---@return any
 local function PZNS_CreateJobNPCsMenu(parentContextMenu, jobName, playerSurvivor, groupMembers)

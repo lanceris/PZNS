@@ -15,7 +15,7 @@ end
 --- Cows: mpPlayerID is a placeholder, it always defaults to 0 in local.
 ---@param context any
 ---@param worldobjects any
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 function PZNS.Context.NPCInfoOptions(context, worldobjects, playerSurvivor)
     local infoSubMenu_1 = context:getNew(context);
     local infoSubMenu_1_Option = context:addOption(

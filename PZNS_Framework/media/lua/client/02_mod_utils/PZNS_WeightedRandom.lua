@@ -1,9 +1,9 @@
 --source - https://gist.github.com/RyanPattison/7dd900f4042e8a6f9f23
 
 ---@class weightedRng
-local alias_table = {}
+local weightedRng = {}
 
-function alias_table:new(weights)
+function weightedRng:new(weights)
     local total = 0
     for _, v in ipairs(weights) do
         assert(v >= 0, "all weights must be non-negative")
@@ -46,12 +46,12 @@ function alias_table:new(weights)
     return setmetatable({ alias = alias, prob = prob, n = #weights }, self)
 end
 
-function alias_table:__call()
+function weightedRng:__call()
     local index = ZombRand(1, self.n + 1)
     return ZombRandFloat(0, 1) < self.prob[index] and index or self.alias[index]
 end
 
-return alias_table
+return weightedRng
 
 --[[ -- usage:
 alias_table = require"alias_table"

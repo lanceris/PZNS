@@ -6,7 +6,7 @@
 --TODO: probably remove all setters for npcSurvivor and leave only handlers for IsoPlayer
 local PZNS_UtilsNPCs = {};
 --- Cows: Add a specified trait to the target npcSurvivor.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param traitName string
 ---@return any
 function PZNS_UtilsNPCs.PZNS_AddNPCSurvivorTraits(npcSurvivor, traitName)
@@ -19,7 +19,7 @@ function PZNS_UtilsNPCs.PZNS_AddNPCSurvivorTraits(npcSurvivor, traitName)
 end
 
 --- Cows: Level the target npcSurvivor's specified perk by the specified levels.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param perkName string
 ---@param levels number
 ---@return any
@@ -39,7 +39,7 @@ function PZNS_UtilsNPCs.PZNS_AddNPCSurvivorPerkLevel(npcSurvivor, perkName, leve
 end
 
 --- Cows: Gets the target npcSurvivor's specified perk level
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param perkName string
 ---@return any
 function PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, perkName)
@@ -56,7 +56,7 @@ function PZNS_UtilsNPCs.PZNS_GetNPCSurvivorPerkLevel(npcSurvivor, perkName)
 end
 
 --- Cows: Simple code to add item to npcSurvivor inventory.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param itemID string
 function PZNS_UtilsNPCs.PZNS_AddItemToInventoryNPCSurvivor(npcSurvivor, itemID)
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
@@ -72,7 +72,7 @@ function PZNS_UtilsNPCs.PZNS_AddItemToInventoryNPCSurvivor(npcSurvivor, itemID)
 end
 
 --- Ed: Tweaked with for loop to spawn multiple items by count.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param itemID string
 ---@param count integer
 function PZNS_UtilsNPCs.PZNS_AddItemsToInventoryNPCSurvivor(npcSurvivor, itemID, count)
@@ -91,7 +91,7 @@ function PZNS_UtilsNPCs.PZNS_AddItemsToInventoryNPCSurvivor(npcSurvivor, itemID,
 end
 
 --- Cows: Simple code to remove item to npcSurvivor inventory.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param itemID integer
 function PZNS_UtilsNPCs.PZNS_RemoveItemFromInventoryNPCSurvivor(npcSurvivor, itemID)
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
@@ -103,7 +103,7 @@ function PZNS_UtilsNPCs.PZNS_RemoveItemFromInventoryNPCSurvivor(npcSurvivor, ite
 end
 
 --- Cows: Simple code to add clothingItem to npcSurvivor inventory and wear it.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param clothingID string
 function PZNS_UtilsNPCs.PZNS_AddEquipClothingNPCSurvivor(npcSurvivor, clothingID)
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
@@ -124,7 +124,7 @@ function PZNS_UtilsNPCs.PZNS_AddEquipClothingNPCSurvivor(npcSurvivor, clothingID
 end
 
 --- Cows: Simple code to add weaponItem to npcSurvivor inventory and equip it.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param weaponID string
 function PZNS_UtilsNPCs.PZNS_AddEquipWeaponNPCSurvivor(npcSurvivor, weaponID)
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
@@ -148,7 +148,7 @@ function PZNS_UtilsNPCs.PZNS_AddEquipWeaponNPCSurvivor(npcSurvivor, weaponID)
         local npcHandItem = npcIsoPlayer:getPrimaryHandItem();
         --
         if (npcHandItem:IsWeapon() == true) then
-            --
+            ---@cast npcHandItem HandWeapon
             if (npcHandItem:isRanged() == true) then
                 npcSurvivor.lastEquippedRangeWeapon = npcHandItem;
             else
@@ -164,7 +164,7 @@ function PZNS_UtilsNPCs.PZNS_AddEquipWeaponNPCSurvivor(npcSurvivor, weaponID)
 end
 
 --- WIP - Cows: Simple code to equip the last weapon the npcSurvivor had.
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_UtilsNPCs.PZNS_EquipLastWeaponNPCSurvivor(npcSurvivor)
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
     if (npcIsoPlayer == nil) then
@@ -202,7 +202,7 @@ function PZNS_UtilsNPCs.PZNS_EquipLastWeaponNPCSurvivor(npcSurvivor)
 end
 
 ---comment
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param r float
 ---@param g float
 ---@param b float
@@ -216,7 +216,7 @@ function PZNS_UtilsNPCs.PZNS_SetNPCHairColor(npcSurvivor, r, g, b)
 end
 
 ---comment
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param hairModelString string
 function PZNS_UtilsNPCs.PZNS_SetNPCHairModel(npcSurvivor, hairModelString)
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
@@ -228,7 +228,7 @@ function PZNS_UtilsNPCs.PZNS_SetNPCHairModel(npcSurvivor, hairModelString)
 end
 
 ---comment
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param r float
 ---@param g float
 ---@param b float
@@ -242,7 +242,7 @@ function PZNS_UtilsNPCs.PZNS_SetNPCSkinColor(npcSurvivor, r, g, b)
 end
 
 ---comment
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param idx number
 function PZNS_UtilsNPCs.PZNS_SetNPCSkinTextureIndex(npcSurvivor, idx)
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
@@ -253,7 +253,7 @@ function PZNS_UtilsNPCs.PZNS_SetNPCSkinTextureIndex(npcSurvivor, idx)
 end
 
 ---comment
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param groupID string | nil
 ---@deprecated
 function PZNS_UtilsNPCs.PZNS_SetNPCGroupID(npcSurvivor, groupID)
@@ -266,7 +266,7 @@ function PZNS_UtilsNPCs.PZNS_SetNPCGroupID(npcSurvivor, groupID)
 end
 
 ---comment
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param jobName string
 function PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, jobName)
     if (npcSurvivor == nil) then
@@ -285,13 +285,12 @@ function PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, jobName)
                 return
             end
         end
-        print(string.format("Job not found: %s", jobName))
     end
 end
 
 ---comment
----@param npcSurvivor any
----@param targetID any
+---@param npcSurvivor PZNS_NPCSurvivor
+---@param targetID survivorID
 function PZNS_UtilsNPCs.PZNS_SetNPCFollowTargetID(npcSurvivor, targetID)
     if (npcSurvivor == nil) then
         return;
@@ -303,7 +302,7 @@ function PZNS_UtilsNPCs.PZNS_SetNPCFollowTargetID(npcSurvivor, targetID)
 end
 
 --- Cows: Assigns a speech table to the npcSurvivor.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param speechTable table | nil
 function PZNS_UtilsNPCs.PZNS_SetNPCSpeechTable(npcSurvivor, speechTable)
     if (npcSurvivor == nil) then
@@ -316,7 +315,7 @@ function PZNS_UtilsNPCs.PZNS_SetNPCSpeechTable(npcSurvivor, speechTable)
 end
 
 --- Cows: Have the NPC speak using the input speech table with a specified intention.
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param speechTable table
 ---@param intention string | nil
 function PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(npcSurvivor, speechTable, intention)
@@ -329,7 +328,7 @@ function PZNS_UtilsNPCs.PZNS_UseNPCSpeechTable(npcSurvivor, speechTable, intenti
 end
 
 --- Cows: Clears the queued ISTimedActionQueue
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_UtilsNPCs.PZNS_ClearQueuedNPCActions(npcSurvivor)
     if (npcSurvivor == nil) then
         return;
@@ -349,7 +348,7 @@ function PZNS_UtilsNPCs.PZNS_ClearQueuedNPCActions(npcSurvivor)
 end
 
 ---comment
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_UtilsNPCs.PZNS_GetNPCActionsQueue(npcSurvivor)
     if (npcSurvivor == nil) then
         return;
@@ -361,7 +360,7 @@ function PZNS_UtilsNPCs.PZNS_GetNPCActionsQueue(npcSurvivor)
 end
 
 ---
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@return integer | nil
 function PZNS_UtilsNPCs.PZNS_GetNPCActionsQueuedCount(npcSurvivor)
     if (npcSurvivor == nil) then
@@ -373,7 +372,7 @@ function PZNS_UtilsNPCs.PZNS_GetNPCActionsQueuedCount(npcSurvivor)
 end
 
 --- Cows: Adds an action to ISTimedActionQueue; this is a wrapper function that allows the npcSurvivor to be updated without changing ISTimedActionQueue
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param npcQueueAction any
 function PZNS_UtilsNPCs.PZNS_AddNPCActionToQueue(npcSurvivor, npcQueueAction)
     if (npcSurvivor == nil or npcQueueAction == nil) then
@@ -391,7 +390,7 @@ function PZNS_UtilsNPCs.PZNS_AddNPCActionToQueue(npcSurvivor, npcQueueAction)
 end
 
 --- Cows Checks if NPC square is loaded, this is critical to ensure NPC IsoPlayer can act.
----@param npcSurvivor NPC|nil
+---@param npcSurvivor PZNS_NPCSurvivor?
 ---@return boolean
 function PZNS_UtilsNPCs.PZNS_GetIsNPCSquareLoaded(npcSurvivor)
     if (npcSurvivor == nil) then
@@ -418,7 +417,7 @@ function PZNS_UtilsNPCs.PZNS_GetIsNPCSquareLoaded(npcSurvivor)
 end
 
 ---comment
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@return IsoGridSquare | nil
 function PZNS_UtilsNPCs.PZNS_GetNPCIsoGridSquare(npcSurvivor)
     if (npcSurvivor == nil) then
@@ -454,7 +453,7 @@ end
 
 --- Cows: needType based on values in Java API
 --- https://projectzomboid.com/modding/zombie/characters/Stats.html
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param needType any
 ---@param needValue any
 function PZNS_UtilsNPCs.PZNS_SetNPCNeedLevel(npcSurvivor, needType, needValue)
@@ -499,7 +498,7 @@ function PZNS_UtilsNPCs.PZNS_SetNPCNeedLevel(npcSurvivor, needType, needValue)
 end
 
 --- Cows: needType based on values in Java API
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_UtilsNPCs.PZNS_ClearNPCAllNeedsLevel(npcSurvivor)
     if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid == false) then
         return;
@@ -545,7 +544,7 @@ function PZNS_UtilsNPCs.PZNS_ClearAllNPCsAllNeedsLevel()
 end
 
 --- Cows: Check and update the npcSurvivor isStuckTicks, using the input tickInterval
----@param npcSurvivor any
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param tickInterval number
 function PZNS_UtilsNPCs.PZNS_StuckNPCCheck(npcSurvivor, tickInterval)
     -- Cows: 50 Ticks per action on average... also need ticks for animations.

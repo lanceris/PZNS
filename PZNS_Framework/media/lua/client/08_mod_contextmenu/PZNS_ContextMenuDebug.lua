@@ -170,7 +170,7 @@ function PZNS.Context.Debug.BuildOptions(context, worldobjects)
 end
 
 -- Cows: Respawn Christ Tester
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 ---@param square? IsoGridSquare square to spawn NPC at; if nil - spawn at `playerSurvivor` position
 local function respawnChristTester(playerSurvivor, square)
     PZNS_DeleteChrisTester();
@@ -178,7 +178,7 @@ local function respawnChristTester(playerSurvivor, square)
 end
 
 -- Cows: Respawn Jill Tester
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 ---@param square? IsoGridSquare square to spawn NPC at; if `nil` - spawn at `playerSurvivor` position
 local function respawnJillTester(playerSurvivor, square)
     PZNS_DeleteJillTester()

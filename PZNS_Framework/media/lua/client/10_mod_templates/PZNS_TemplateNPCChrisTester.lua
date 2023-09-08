@@ -8,7 +8,7 @@ local npcSurvivorID = "PZNS_ChrisTester";
 
 --- Cows: mpPlayerID is merely a placeholder... PZ has issues as of B41 with NPCs/non-players in a MP environment.
 --- Cows: Example of spawning in an NPC. This Npc is "Chris Tester".
----@param playerSurvivor NPC player num
+---@param playerSurvivor PZNS_NPCSurvivor player NPC
 ---@param square? IsoGridSquare square to spawn NPC at, by default position of playerSurvivor (mpPlayerID)
 ---@param addToPlayerGroup? boolean if true - try to add NPC to player group (if exist) by default true
 function PZNS_SpawnChrisTester(playerSurvivor, square, addToPlayerGroup)

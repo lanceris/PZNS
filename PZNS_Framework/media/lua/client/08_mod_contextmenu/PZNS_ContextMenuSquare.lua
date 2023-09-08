@@ -151,7 +151,7 @@ end
 ---comment
 ---@param context any
 ---@param worldobjects any
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 ---@param square IsoGridSquare
 function PZNS.Context.SquareObjectsOptions(context, worldobjects, playerSurvivor, square)
     local squareSubMenu = context:getNew(context);
