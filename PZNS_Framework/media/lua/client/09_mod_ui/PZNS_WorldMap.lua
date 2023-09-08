@@ -31,6 +31,14 @@ function ButtonShowLocators:new(x, y, width, height, title, clicktarget, onclick
     return o;
 end
 
+local function updateMembersNpcs()
+    local members = PZNS_PlayerUtils.getPlayerGroup();
+    if not members then return end
+    members = members:getMembers()
+    local activeNPCs = PZNS.Core.NPC.registry
+    return members, activeNPCs
+end
+
 -- Cows: Encapsulate a few items into a single function; since these items are only relevant to world map rendering.
 function PZNS_UpdateISWorldMapRender()
     local worldmap_render = ISWorldMap.render;
@@ -56,6 +64,8 @@ function PZNS_UpdateISWorldMapRender()
         btnShowGroupMembersLocation:setAlwaysOnTop(true);
     end
     createButtonShowGroupMembers();
+    local ticks = 100
+    local members, activeNPCs = updateMembersNpcs()
     -- Cows: Not sure how to feel about the forced override... but it seems to work without any problems.
     ISWorldMap.render = function(self)
         worldmap_render(self);
@@ -63,42 +73,39 @@ function PZNS_UpdateISWorldMapRender()
         if isShowingGroupMembers ~= true then
             return;
         end
-        ---@type Group?
-        local group = PZNS_PlayerUtils.getPlayerGroup()
-        local activeNPCs = PZNS.Core.NPC.registry
+
+        -- probably shouldn't update members/npcs every render tick
+        ticks = ticks - 1
+        if ticks <= 0 then
+            ticks = 100
+            members, activeNPCs = updateMembersNpcs()
+        end
+
         -- Cows: check if activeNPCs is not nil and loaded.
-        if (activeNPCs == nil or group == nil) then
+        if (activeNPCs == nil or members == {}) then
             return;
         end
         -- Cows: iterate through the survivorIDs of the group.
-        for i = 1, group.memberCount do
-            local npcSurvivor = activeNPCs[group.members[i]];
+        for i = 1, #members do
+            local survivorID = members[i]
+            local npcSurvivor = activeNPCs[survivorID];
             --
             if (npcSurvivor ~= nil) and npcSurvivor.isPlayer == false then
                 local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
                 local survivorName = npcSurvivor.survivorName;
+                local survivorX
+                local survivorY
+                if npcIsoPlayer and npcIsoPlayer:isAlive() then
+                    survivorX = npcIsoPlayer:getX()
+                    survivorY = npcIsoPlayer:getY()
+                elseif npcSurvivor.isAlive then
+                    survivorX = npcSurvivor.squareX
+                    survivorY = npcSurvivor.squareY
+                end
                 --
-                if (npcIsoPlayer ~= nil) then
-                    if (npcIsoPlayer:isAlive() == true) then
-                        local x = self.mapAPI:worldToUIX(npcIsoPlayer:getX(), npcIsoPlayer:getY()) - 3;
-                        local y = self.mapAPI:worldToUIY(npcIsoPlayer:getX(), npcIsoPlayer:getY()) - 3;
-                        self:drawRect(x, y, 6, 6, 1, 0, 0, 1); -- Cows: This draws the square dot on the map.
-                        local name_size = getTextManager():MeasureStringX(UIFont.NewSmall, survivorName);
-                        self:drawRect(
-                            x - 6,         -- y offset, should put the box above the dot and the text in middle.
-                            y - 28,        -- y offset, should put the box above the dot and the text in center.
-                            name_size + 3, -- Width
-                            24,            -- Height
-                            0.5,           -- Transparency
-                            0,             -- R
-                            0,             -- G
-                            0              -- B
-                        );                 -- Cows: This draws the namebox background
-                        self:drawText(survivorName, x - 5, y - (28 + 1), 1, 1, 1, 1, UIFont.NewSmall);
-                    end
-                elseif (npcSurvivor.isAlive == true) then
-                    local x = self.mapAPI:worldToUIX(npcSurvivor.squareX, npcSurvivor.squareY) - 3;
-                    local y = self.mapAPI:worldToUIY(npcSurvivor.squareX, npcSurvivor.squareY) - 3;
+                if survivorX and survivorY then
+                    local x = self.mapAPI:worldToUIX(survivorX, survivorY) - 3;
+                    local y = self.mapAPI:worldToUIY(survivorX, survivorY) - 3;
                     self:drawRect(x, y, 6, 6, 1, 0, 0, 1); -- Cows: This draws the square dot on the map.
                     local name_size = getTextManager():MeasureStringX(UIFont.NewSmall, survivorName);
                     self:drawRect(

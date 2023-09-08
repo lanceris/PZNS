@@ -25,6 +25,3 @@ PZNS.Core.Zone.registry = {}
 ---@alias groupID string Unique identifier for group
 ---@alias factionID string Unique identifier for faction
 ---@alias zoneID string Unique identifier for zone
-
-
---NOTE: NPCs share "sitting" state of the player, need to check

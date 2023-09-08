@@ -95,7 +95,6 @@ end
 
 ---comment
 ---@param parentContextMenu any
----@param mpPlayerID any
 ---@param groupID any
 ---@param orderKey any
 ---@param square IsoGridSquare
@@ -150,9 +149,10 @@ local function PZNS_CreateSquareGroupNPCsSubMenu(parentContextMenu, playerSurviv
 end
 
 ---comment
----@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
+---@param playerSurvivor NPC
+---@param square IsoGridSquare
 function PZNS.Context.SquareObjectsOptions(context, worldobjects, playerSurvivor, square)
     local squareSubMenu = context:getNew(context);
     --

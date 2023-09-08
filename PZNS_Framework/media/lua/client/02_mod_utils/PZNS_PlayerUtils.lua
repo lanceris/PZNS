@@ -47,6 +47,52 @@ local function createLocalPlayerGroup(npcSurvivor)
     --
     if (playerGroup == nil) then
         PZNS_NPCGroupsManager.createGroup(playerGroupID, playerGroupName, playerID);
+        PZNS_PlayerUtils.PZNS_AddPlayerToGroup(0, playerGroupID)
+    else
+        if playerGroup[playerID] then
+            -- migrate from old format
+            local valid = {
+                groupID = true,
+                name = true,
+                leaderID = true,
+                members = true,
+                factionID = true,
+                memberCount = true,
+            }
+            local members = {}
+            for field, value in pairs(playerGroup) do
+                if not valid[field] then
+                    members[#members + 1] = value
+                end
+            end
+            local PZNS_UtilsDataGroups = require("02_mod_utils/PZNS_UtilsDataGroups")
+            local groups = PZNS_UtilsDataGroups.PZNS_GetCreateActiveGroupsModData()
+            groups[playerGroupID] = nil
+            playerGroup = PZNS_NPCGroupsManager.createGroup(playerGroupID);
+            PZNS_PlayerUtils.PZNS_AddPlayerToGroup(0, playerGroupID);
+            for i = 1, #members do
+                local npc = PZNS_NPCsManager.getNPC(members[i])
+                if npc then
+                    PZNS_NPCGroupsManager.addNPCToGroup(npc, playerGroupID)
+                end
+            end
+        end
+    end
+end
+
+--- Cows: Add LocalPlayer "0" to group.
+function PZNS_LocalPlayerGroupCreation()
+    local mpPlayerID = 0;
+    local playerID = "Player" .. tostring(mpPlayerID)
+    local playerGroupID = playerID .. "Group";
+    local playerGroup = PZNS_NPCGroupsManager.getGroupByID(playerGroupID);
+    getSpecificPlayer(mpPlayerID):getModData().survivorID = playerID;
+    --
+    if (playerGroup == nil) then
+        playerGroup = PZNS_NPCGroupsManager.createGroup(playerGroupID);
+        PZNS_PlayerUtils.PZNS_AddPlayerToGroup(mpPlayerID, playerGroupID);
+    else
+
     end
 end
 
@@ -70,7 +116,7 @@ end
 
 ---Get Group instance of player group
 ---@param playerNum? integer
----@return Group|nil
+---@return Group?
 function PZNS_PlayerUtils.getPlayerGroup(playerNum)
     local playerSurvivor = PZNS_PlayerUtils.getPlayerNPC(playerNum)
     if not playerSurvivor then return end
@@ -106,7 +152,7 @@ function PZNS_PlayerUtils.PZNS_AddPlayerToGroup(mpPlayerID, groupID)
     local stringID = "player" .. tostring(mpPlayerID);
     --
     if (group ~= nil) then
-        group:addMember(stringID)
+        PZNS_NPCGroupsManager.addNPCToGroupById(stringID, groupID)
     end
 end
 
@@ -118,7 +164,7 @@ function PZNS_PlayerUtils.PZNS_RemovePlayerFromGroup(mpPlayerID, groupID)
     local stringID = "player" .. tostring(mpPlayerID);
     --
     if (group ~= nil) then
-        group[stringID] = nil;
+        PZNS_NPCGroupsManager.removeNPCFromGroup(groupID, stringID)
     end
 end
 

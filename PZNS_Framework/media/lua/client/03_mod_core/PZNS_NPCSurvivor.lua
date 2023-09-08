@@ -131,25 +131,15 @@ function NPC:new(
 end
 
 ---Assigns groupID to NPC
----@param groupID groupID
+---@param groupID groupID?
 function NPC:setGroupID(groupID)
     self.groupID = groupID
 end
 
----Unassign groupID from NPC
-function NPC:unsetGroupID()
-    self.groupID = nil
-end
-
 ---Assigns factionID to NPC
----@param factionID factionID
+---@param factionID factionID?
 function NPC:setFactionID(factionID)
     self.factionID = factionID
-end
-
----Unassign factionID from NPC
-function NPC:unsetFactionID()
-    self.factionID = nil
 end
 
 ---comments

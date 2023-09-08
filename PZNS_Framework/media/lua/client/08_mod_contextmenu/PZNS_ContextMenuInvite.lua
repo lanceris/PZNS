@@ -39,6 +39,7 @@ function PZNS.Context.InviteOptions(context, worldobjects, playerSurvivor, squar
             -- Cows: Check and make sure it is NOT the current player and is alive
             if (currentObj ~= playerSurvivor.npcIsoPlayerObject and currentObj:isAlive() == true) then
                 local npcSurvivor = PZNS_NPCsManager.getActiveNPCBySurvivorID(currentObj:getModData().survivorID);
+                if not npcSurvivor then return end
                 -- Cows: Check if the npc is not a raider, raiders cannot be invited
                 if (npcSurvivor.isRaider ~= true) then
                     --  Cows: Survivor affection must be above a set value to be invited

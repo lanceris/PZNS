@@ -24,25 +24,26 @@ function Group:new(
     members,
     factionID
 )
-    local group = {};
-    group.groupID = groupID
-    group.name = name
-    group.leaderID = leaderID
-    group.members = members
-    group.factionID = factionID
-    group.memberCount = #group.members
-    setmetatable(group, self)
+    local npcGroup = {
+        groupID = groupID,
+        name = name,
+        leaderID = leaderID,
+        members = members or {},
+        factionID = factionID,
+    }
+    npcGroup.memberCount = #npcGroup.members
+    setmetatable(npcGroup, self)
     self.__index = self;
-    return group;
+    return npcGroup;
 end
 
 ---Sets new leader for group
----@param newLeaderID survivorID survivorID of new leader
+---@param newLeaderID survivorID `survivorID` of new leader
 function Group:setLeader(newLeaderID)
     self.leaderID = newLeaderID
 end
 
----Get list of members (survivorID)
+---Get list of members (`survivorID`)
 ---@return table<survivorID>
 function Group:getMembers()
     local res = {}
@@ -57,7 +58,19 @@ function Group:getMemberCount()
     return self.memberCount
 end
 
----Added memberID to group members
+---Check if `survivorID` is in `Group.members`
+---@param survivorID survivorID
+---@return boolean isIn
+function Group:isMember(survivorID)
+    for i = 1, #self.members do
+        if self.members[i] == survivorID then
+            return true
+        end
+    end
+    return false
+end
+
+---Adds `memberID` to group members
 ---@param memberID survivorID NPC survivorID of newly added member
 function Group:addMember(memberID)
     if not memberID then return end
@@ -65,7 +78,7 @@ function Group:addMember(memberID)
     self.memberCount = self.memberCount + 1
 end
 
----Removes <memberID> from Group members
+---Removes `memberID` from Group members
 ---@param memberID survivorID NPC survivorID of member to remove
 function Group:removeMember(memberID)
     if not memberID then return end
@@ -82,11 +95,17 @@ function Group:removeMember(memberID)
 end
 
 ---Rename group
----@param newName string  New name for group (length<50)
+---@param newName string  New name for group (length<250)
 function Group:setName(newName)
-    local limit = 50
-    if not newName or newName == "" then error("Name not valid:" .. tostring(newName)) end
-    if #newName > limit then error(string.format("Name too long: %d>%d", #newName, limit)) end
+    local limit = 250
+    if not newName or newName == "" then
+        print("Name not valid:" .. tostring(newName))
+        return
+    end
+    if #newName > limit then
+        print(string.format("Name too long: %d>%d", #newName, limit))
+        return
+    end
     self.name = newName
 end
 

@@ -66,7 +66,6 @@ local function PZNS_CreateJobNPCsMenu(parentContextMenu, jobName, playerSurvivor
 end
 
 ---comment
----@param mpPlayerID number
 ---@param context any
 ---@param worldobjects any
 function PZNS.Context.JobsOptions(context, worldobjects, playerSurvivor)

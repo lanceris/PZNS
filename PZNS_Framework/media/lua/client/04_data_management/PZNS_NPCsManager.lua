@@ -1,50 +1,37 @@
 require("00_references/init")
-require("03_mod_core/init")
 
 local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
-local NPC = require("03_mod_core/PZNS_NPCSurvivor")
 local PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager")
+local NPC = require("03_mod_core/PZNS_NPCSurvivor")
+local Group = require("03_mod_core/PZNS_NPCGroup")
+
+local u = require("02_mod_utils/PZNS_Utils")
 
 PZNS_ActiveInventoryNPC = {}; -- WIP - Cows: Need to rethink how Global variables are used...
 
 local PZNS_NPCsManager = {};
 
-local fmt = string.format
-
----for easier access locally
----@param survivorID survivorID?
----@return NPC?
-local function get(survivorID)
-    return PZNS.Core.NPC.registry[survivorID]
-end
-
-local function verifyNPC(npc, id)
-    assert(npc, fmt("NPC not found! ID: %s", id))
-end
-
----@param survivorID survivorID
----@return NPC?
-function PZNS_NPCsManager.getNPC(survivorID)
-    return get(survivorID)
-end
-
----@return Group|nil
-local function getGroup(groupID)
-    return PZNS.Core.Group.registry[groupID]
-end
-
----Try to find NPC from registry by its isoObject
+---Try to find NPC by its isoObject
 ---@param isoPlayer IsoPlayer
 ---@return NPC?
 function PZNS_NPCsManager.findNPCByIsoObject(isoPlayer)
-    for _, npc in pairs(PZNS.Core.NPC.registry) do
+    local activeNPCs = PZNS.Core.NPC.registry
+    for _, npc in pairs(activeNPCs) do
         if npc.npcIsoPlayerObject == isoPlayer then
             return npc
         end
     end
 end
 
+---Create IsoPlayer object with provided params at `square`
+---@param square IsoGridSquare Square that NPC will spawn on
+---@param isFemale boolean
+---@param surname string
+---@param forename string
+---@param survivorID survivorID unique ID, will be set to isoPlayer modData
+---@return IsoPlayer isoPlayer player object
+---@return integer squareZ Z-level that NPC was created at
 local function createIsoPlayer(square, isFemale, surname, forename, survivorID)
     local squareZ = 0;
     -- Cows: It turns out this check is needed, otherwise NPCs may spawn in the air and fall...
@@ -76,7 +63,7 @@ end
 ---@param isFemale boolean
 ---@param surname string
 ---@param forename string
----@param square IsoGridSquare
+---@param square IsoGridSquare Square that NPC will spawn on
 ---@param isoPlayer IsoPlayer? if passed - skip IsoPlayer creation
 ---@return NPC
 function PZNS_NPCsManager.createNPCSurvivor(
@@ -93,21 +80,19 @@ function PZNS_NPCsManager.createNPCSurvivor(
     end
     local npcSurvivor = nil;
     -- Cows: Now add the npcSurvivor to the PZNS_NPCsManager if the ID does not exist.
-    local npc = get(survivorID)
+    local npc = u.getNPC(survivorID)
+    local squareZ = 0
     if (not npc) then
         local survivorName = forename .. " " .. surname; -- Cows: in case getName() functions break down or can't be used...
         --
-        local squareZ = 0
-        local addTextObject = true
         if not isoPlayer then
             isoPlayer, squareZ = createIsoPlayer(square, isFemale, surname, forename, survivorID)
         else
-            addTextObject = false
-            squareZ = isoPlayer:getSquare()
-            if squareZ then
-                squareZ = squareZ:getZ()
+            if not instanceof(isoPlayer, "IsoPlayer") then
+                print(string.format("IsoPlayer is not valid for '%s'! Will create new one", survivorID))
+                isoPlayer, squareZ = createIsoPlayer(square, isFemale, surname, forename, survivorID)
             else
-                error("Could not get isoPlayer square")
+                squareZ = isoPlayer:getSquare():getZ()
             end
         end
 
@@ -123,168 +108,44 @@ function PZNS_NPCsManager.createNPCSurvivor(
         npcSurvivor.squareX = square:getX();
         npcSurvivor.squareY = square:getY();
         npcSurvivor.squareZ = squareZ;
-        if addTextObject then
-            npcSurvivor.textObject = TextDrawObject.new();
-            npcSurvivor.textObject:setAllowAnyImage(true);
-            npcSurvivor.textObject:setDefaultFont(UIFont.Small);
-            npcSurvivor.textObject:setDefaultColors(255, 255, 255);
-            npcSurvivor.textObject:ReadString(survivorName);
-        end
+        npcSurvivor.textObject = TextDrawObject.new();
+        npcSurvivor.textObject:setAllowAnyImage(true);
+        npcSurvivor.textObject:setDefaultFont(UIFont.Small);
+        npcSurvivor.textObject:setDefaultColors(255, 255, 255);
+        npcSurvivor.textObject:ReadString(survivorName);
     else
         -- WIP - Cows: Alert player the ID is already used and the NPC cannot be created.
+        print(string.format("NPC already exist! ID: %s", survivorID))
         npcSurvivor = npc
-        assert(isoPlayer, "IsoPlayer missing, can't create NPC")
-        npcSurvivor.npcIsoPlayerObject = isoPlayer
+        if not isoPlayer or not npcSurvivor.npcIsoPlayerObject then
+            isoPlayer, squareZ = createIsoPlayer(square, isFemale, surname, forename, survivorID)
+        end
+        if not npcSurvivor.npcIsoPlayerObject then
+            npcSurvivor.npcIsoPlayerObject = isoPlayer
+        end
     end
     return npcSurvivor;
 end
 
----Set NPC group ID to groupID
+---Set `NPC` group ID to `groupID`
 ---@param survivorID survivorID
----@param groupID groupID
+---@param groupID groupID? leave empty to unset group
 function PZNS_NPCsManager.setGroupID(survivorID, groupID)
-    local npc = get(survivorID)
-    verifyNPC(npc, survivorID)
-    local group = getGroup(groupID)
-    assert(group, fmt("Group not found! ID: %s", groupID))
-    if not npc or not group then return end
-    NPC.setGroupID(npc, group.groupID)
-end
-
----Set NPC groupID to nil
----@param survivorID survivorID
-function PZNS_NPCsManager.unsetGroupID(survivorID)
-    local npc = get(survivorID)
-    verifyNPC(npc, survivorID)
-    if not npc then return end
-    NPC.unsetGroupID(npc)
-end
-
----Set NPC factionID to nil
----@param survivorID survivorID
-function PZNS_NPCsManager.unsetFactionID(survivorID)
-    local npc = get(survivorID)
-    verifyNPC(npc, survivorID)
-    if not npc then return end
-    NPC.unsetFactionID(npc)
-end
-
---region relations
----@alias _getRelationToParam {npc?:NPC,id?:survivorID}
----if input is safe (survivors guaranteed to exist), set checks=false to avoid extra checks
----@alias _getRelArgs {first:_getRelationToParam, second:_getRelationToParam, checks:boolean}
----@alias _changeRelArgs {first:_getRelationToParam, second:_getRelationToParam, diff:integer, checks:boolean}
-
----Get true if `first` knows `second`
----@param args _getRelArgs
----@return boolean
-function PZNS_NPCsManager.isNPCKnowsOther(args)
-    local first = args.first
-    local second = args.second
-    local npcFirst = first.npc or get(first.id)
-    local npcSecond = second.npc or get(second.id)
-    if args.checks then
-        if first.id then verifyNPC(npcFirst, first.id) end
-        if second.id then verifyNPC(npcSecond, second.id) end
+    local npc = u.getNPC(survivorID)
+    if not u.npcCheck(npc, survivorID) then return end ---@cast npc NPC
+    if groupID then
+        local group = u.getGroup(groupID)
+        if not u.groupCheck(group, groupID) then return end
+        if not Group.isMember(group, survivorID) then
+            Group.addMember(group, survivorID)
+        end
     end
-    if not npcFirst or not npcSecond then error("Can't proceed") end
-
-    return NPC.getRelationTo(npcFirst, npcSecond.survivorID) ~= nil
+    NPC.setGroupID(npc, groupID)
 end
-
----Get true if `first` seen `second`
----@param args _getRelArgs
----@return boolean
-function PZNS_NPCsManager.isNPCSeenOther(args)
-    local first = args.first
-    local second = args.second
-    local npcFirst = first.npc or get(first.id)
-    local npcSecond = second.npc or get(second.id)
-    if args.checks then
-        if first.id then verifyNPC(npcFirst, first.id) end
-        if second.id then verifyNPC(npcSecond, second.id) end
-    end
-    if not npcFirst or not npcSecond then error("Can't proceed") end
-
-    return NPC.getAnonRelationTo(npcFirst, npcSecond.survivorID) ~= nil
-end
-
----Change opinion of `firstSurvivorID` to `secondSurvivorID` by `diff`
----@param args _changeRelArgs
----@return boolean? firstMet
-function PZNS_NPCsManager.changeRelationBetween(args)
-    local first = args.first
-    local second = args.second
-    local npcFirst = first.npc or get(first.id)
-    local npcSecond = second.npc or get(second.id)
-    if args.checks then
-        if first.id then verifyNPC(npcFirst, first.id) end
-        if second.id then verifyNPC(npcSecond, second.id) end
-        assert(type(args.diff) == "number", fmt("Invalid diff: %s (%s)", args.diff, type(args.diff)))
-    end
-    if not npcFirst or not npcSecond then error("Can't proceed") end
-
-    return NPC.changeRelation(npcFirst, npcSecond.survivorID, args.diff)
-end
-
----Change anonymous opinion of `firstSurvivorID` to `secondSurvivorID` by `diff`
----Anonymous relation means `firstSurvivorID` haven't met `secondSurvivorID` yet (does not know name/group etc)
----@param args _changeRelArgs
----@return boolean? firstSeen
-function PZNS_NPCsManager.changeAnonymousRelationBetween(args)
-    local first = args.first
-    local second = args.second
-    local npcFirst = first.npc or get(first.id)
-    local npcSecond = second.npc or get(second.id)
-    if args.checks then
-        if first.id then verifyNPC(npcFirst, first.id) end
-        if second.id then verifyNPC(npcSecond, second.id) end
-        assert(type(args.diff) == "number", fmt("Invalid diff: %s (%s)", args.diff, type(args.diff)))
-    end
-    if not npcFirst or not npcSecond then error("Can't proceed") end
-    assert(not NPC.getRelationTo(npcFirst, npcSecond.survivorID),
-        fmt("NPCs already met! ID1: %s; ID2: %s", npcFirst.survivorID, npcSecond.survivorID))
-
-    return NPC.changeAnonRelation(npcFirst, npcSecond.survivorID, args.diff)
-end
-
----Get opinion of `firstSurvivorID` to `secondSurvivorID`
----@param args _getRelArgs
----@return integer? relation
-function PZNS_NPCsManager.getRelationTo(args)
-    local first = args.first
-    local second = args.second
-    local npcFirst = first.npc or get(first.id)
-    local npcSecond = second.npc or get(second.id)
-    if args.checks then
-        if first.id then verifyNPC(npcFirst, first.id) end
-        if second.id then verifyNPC(npcSecond, second.id) end
-    end
-    if not npcFirst or not npcSecond then error("Can't proceed") end
-    return NPC.getRelationTo(npcFirst, npcSecond.survivorID)
-end
-
----Get anonymous opinion of `firstSurvivorID` to `secondSurvivorID`
----@param args _getRelArgs
----@return integer? relation
-function PZNS_NPCsManager.getAnonRelationTo(args)
-    local first = args.first
-    local second = args.second
-    local npcFirst = first.npc or get(first.id)
-    local npcSecond = second.npc or get(second.id)
-    if args.checks then
-        if first.id then verifyNPC(npcFirst, first.id) end
-        if second.id then verifyNPC(npcSecond, second.id) end
-    end
-    if not npcFirst or not npcSecond then error("Can't proceed") end
-    return NPC.getAnonRelationTo(npcFirst, npcSecond.survivorID)
-end
-
---endregion
 
 ---Cows: Get a npcSurvivor by specified survivorID
----@param survivorID any
----@return any
+---@param survivorID survivorID
+---@return NPC?
 function PZNS_NPCsManager.getActiveNPCBySurvivorID(survivorID)
     local activeNPCs = PZNS.Core.NPC.registry
     if (activeNPCs[survivorID] ~= nil) then
@@ -294,7 +155,7 @@ function PZNS_NPCsManager.getActiveNPCBySurvivorID(survivorID)
 end
 
 ---Cows: Delete a npcSurvivor by specified survivorID
----@param survivorID any
+---@param survivorID survivorID
 function PZNS_NPCsManager.deleteActiveNPCBySurvivorID(survivorID)
     local activeNPCs = PZNS.Core.NPC.registry
     local npcSurvivor = activeNPCs[survivorID];
@@ -313,7 +174,7 @@ function PZNS_NPCsManager.deleteActiveNPCBySurvivorID(survivorID)
 end
 
 ---comment
----@param survivorID any
+---@param survivorID survivorID
 function PZNS_NPCsManager.setActiveInventoryNPCBySurvivorID(survivorID)
     local activeNPCs = PZNS.Core.NPC.registry
     local npcSurvivor = activeNPCs[survivorID];
@@ -322,9 +183,9 @@ end
 
 --- WIP - Cows: Spawn a random raider NPC.
 --- Cows: Go make your own random spawns, this is an example for debugging and testing.
----@param targetSquare IsoGridSquare
----@param raiderID survivorID?
----@return NPC raiderSurvivor
+---@param targetSquare IsoGridSquare square to spawn NPC on
+---@param raiderID string | nil if provided - will be used as survivorID for NPC
+---@return NPC raider created raider NPC
 function PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(targetSquare, raiderID)
     local isFemale = ZombRand(100) > 50; -- Cows: 50/50 roll for female spawn
     local raiderForeName = SurvivorFactory.getRandomForename(isFemale);
@@ -381,11 +242,10 @@ end
 
 --- WIP - Cows: Spawn a random NPC.
 --- Cows: Go make your own random spawns, this is an example for debugging and testing.
----@param targetSquare IsoGridSquare
----@param survivorID string?
----@param initialJob string?
----@return NPC
-function PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare(targetSquare, survivorID, initialJob)
+---@param targetSquare IsoGridSquare square to spawn NPC on
+---@param survivorID string | nil if provided - will be used as survivorID for NPC
+---@return NPC survivor created survivor NPC
+function PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare(targetSquare, survivorID)
     local isFemale = ZombRand(100) > 50; -- Cows: 50/50 roll for female spawn
     local npcForeName = SurvivorFactory.getRandomForename(isFemale);
     local npcSurname = SurvivorFactory.getRandomSurname();
@@ -423,8 +283,7 @@ function PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare(targetSquare, survivorI
         PZNS_UtilsNPCs.PZNS_AddEquipWeaponNPCSurvivor(npcSurvivor, "Base.BaseballBat");
     end
     -- Cows: Set the job last, otherwise the NPC will function as if it didn't have a weapon.
-    initialJob = initialJob == nil and "Wander In Cell" or initialJob
-    PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, initialJob)
+    PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, "Wander In Cell")
     local activeNPCs = PZNS.Core.NPC.registry
     activeNPCs[npcSurvivorID] = npcSurvivor; -- Cows: This saves it to modData, which allows the npc to run while in-game, but does not create a save file.
     PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
@@ -446,7 +305,7 @@ function PZNS_NPCsManager.PZNS_CleanUpNPCData(isoGameCharacter)
     end
     -- remove all relations
     for relatedSurvivorID, relation in pairs(npcSurvivor.relationsMap) do
-        local relatedNPC = get(relatedSurvivorID)
+        local relatedNPC = u.getNPC(relatedSurvivorID)
         if relatedNPC then
             NPC.removeRelationTo(relatedNPC, npcSurvivor.survivorID)
         end
