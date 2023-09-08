@@ -274,12 +274,18 @@ function PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, jobName)
     end
 
     if (jobName) then
-        if npcSurvivor.AIScheduleName then
-            local newRate = PZNS.Options.NPCAIUpdateRateByState[jobName] or npcSurvivor.AIDefaultUpdateRate
-            PZNS.AI.UpdateScheduleRate("OnTick", npcSurvivor.AIScheduleName, newRate)
-            npcSurvivor.AIUpdateRate = newRate
+        for _, job in pairs(PZNS_JobsText) do
+            if job and job[1] == jobName then
+                if npcSurvivor.AIScheduleName then
+                    local newRate = PZNS.Options.NPCAIUpdateRateByState[jobName] or npcSurvivor.AIDefaultUpdateRate
+                    PZNS.AI.UpdateScheduleRate("OnTick", npcSurvivor.AIScheduleName, newRate)
+                    npcSurvivor.AIUpdateRate = newRate
+                end
+                npcSurvivor.jobName = jobName
+                return
+            end
         end
-        npcSurvivor.jobName = jobName;
+        print(string.format("Job not found: %s", jobName))
     end
 end
 
