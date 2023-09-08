@@ -1,3 +1,4 @@
+require("00_references/init")
 local u = {}
 local fmt = string.format
 
@@ -21,6 +22,27 @@ u.npcCheck = function(npc, survivorID)
         return false
     end
     return true
+end
+
+---Get NPC by its survivorID
+---@param survivorID survivorID
+---@return NPC?
+u.getNPC = function(survivorID)
+    return PZNS.Core.NPC.registry[survivorID]
+end
+
+---Get Group by its groupID
+---@param groupID groupID
+---@return Group?
+u.getGroup = function(groupID)
+    return PZNS.Core.Group.registry[groupID]
+end
+
+
+---@param factionID factionID
+---@return NPCFaction?
+u.getFaction = function(factionID)
+    return PZNS.Core.Faction.registry[factionID]
 end
 
 return u

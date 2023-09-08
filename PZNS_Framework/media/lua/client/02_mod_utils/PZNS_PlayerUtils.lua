@@ -4,6 +4,7 @@ local PZNS_PlayerUtils = {};
 local PZNS_NPCsManager --TODO: refactor, utils should not use managers
 local PZNS_NPCGroupsManager
 local NPC = require("03_mod_core/PZNS_NPCSurvivor")
+local u = require("02_mod_utils/PZNS_Utils")
 
 ---@return NPC
 local function createLocalPlayerNPCSurvivor(playerIsoObject)
@@ -47,7 +48,6 @@ local function createLocalPlayerGroup(npcSurvivor)
     --
     if (playerGroup == nil) then
         PZNS_NPCGroupsManager.createGroup(playerGroupID, playerGroupName, playerID);
-        PZNS_PlayerUtils.PZNS_AddPlayerToGroup(0, playerGroupID)
     else
         if playerGroup[playerID] then
             -- migrate from old format
@@ -68,8 +68,8 @@ local function createLocalPlayerGroup(npcSurvivor)
             local PZNS_UtilsDataGroups = require("02_mod_utils/PZNS_UtilsDataGroups")
             local groups = PZNS_UtilsDataGroups.PZNS_GetCreateActiveGroupsModData()
             groups[playerGroupID] = nil
-            playerGroup = PZNS_NPCGroupsManager.createGroup(playerGroupID);
-            PZNS_PlayerUtils.PZNS_AddPlayerToGroup(0, playerGroupID);
+            playerGroup = PZNS_NPCGroupsManager.createGroup(playerGroupID, playerGroupName, playerID);
+
             for i = 1, #members do
                 local npc = PZNS_NPCsManager.getNPC(members[i])
                 if npc then
@@ -77,22 +77,6 @@ local function createLocalPlayerGroup(npcSurvivor)
                 end
             end
         end
-    end
-end
-
---- Cows: Add LocalPlayer "0" to group.
-function PZNS_LocalPlayerGroupCreation()
-    local mpPlayerID = 0;
-    local playerID = "Player" .. tostring(mpPlayerID)
-    local playerGroupID = playerID .. "Group";
-    local playerGroup = PZNS_NPCGroupsManager.getGroupByID(playerGroupID);
-    getSpecificPlayer(mpPlayerID):getModData().survivorID = playerID;
-    --
-    if (playerGroup == nil) then
-        playerGroup = PZNS_NPCGroupsManager.createGroup(playerGroupID);
-        PZNS_PlayerUtils.PZNS_AddPlayerToGroup(mpPlayerID, playerGroupID);
-    else
-
     end
 end
 
@@ -108,10 +92,7 @@ end
 function PZNS_PlayerUtils.getPlayerNPC(playerNum)
     playerNum = playerNum == nil and 0 or playerNum
     local survivorID = "Player" .. tostring(playerNum)
-    if not PZNS_NPCsManager then
-        PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager")
-    end
-    return PZNS_NPCsManager.getNPC(survivorID)
+    return u.getNPC(survivorID)
 end
 
 ---Get Group instance of player group

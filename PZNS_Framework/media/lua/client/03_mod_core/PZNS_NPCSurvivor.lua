@@ -146,10 +146,16 @@ end
 ---@param mpPlayerID integer
 function NPC:setPlayerNum(mpPlayerID)
     local requestedIsoPlayer = getSpecificPlayer(mpPlayerID)
-    assert(requestedIsoPlayer, "Can't find specific player, num: " .. tostring(mpPlayerID))
+    if requestedIsoPlayer then
+        print("Can't find specific player, num: " .. tostring(mpPlayerID))
+        return
+    end
     local msg = string.format("IsoPlayer for mpPlayerID: %s does not match npcIsoPlayerObject. survivorID: %s",
         mpPlayerID, self.survivorID)
-    assert(requestedIsoPlayer == self.npcIsoPlayerObject, msg)
+    if requestedIsoPlayer == self.npcIsoPlayerObject then
+        print(msg)
+        return
+    end
     self.mpPlayerID = mpPlayerID
 end
 

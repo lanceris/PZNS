@@ -26,7 +26,7 @@ function PZNS.Context.PZNS_OnFillWorldObjectContextMenu(mpPlayerID, context, wor
 
     local playerIsoObject = getSpecificPlayer(mpPlayerID)
     local playerSurvivor = PZNS_NPCsManager.findNPCByIsoObject(playerIsoObject)
-    if not playerSurvivor then return end
+    if not playerSurvivor then print("playerSurvivor not found!") end
     local clickedOnSquare = PZNS_PlayerUtils.PZNS_GetPlayerMouseGridSquare(mpPlayerID)
 
     if SandboxVars.PZNS_Framework.IsDebugModeActive == true then

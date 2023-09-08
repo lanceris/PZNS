@@ -101,7 +101,9 @@ PZNS_DataUtils.clamp = function(n, _min, _max)
     if not n then error("Missing value in clamp()") end
     _min = _min or 0
     _max = _max or 100
-    return math.min(math.max(n, _min), _max)
+    if n < _min then return _min end
+    if n > _max then return _max end
+    return n
 end
 
 ---roll chance from `_min` (1) to `_max` (100) for `oneIn`

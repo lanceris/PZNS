@@ -1,5 +1,6 @@
 --- Cows: Most of the code in this file is based on "SurvivorWorldMapButton.lua"
 local PZNS_PlayerUtils = require("02_mod_utils/PZNS_PlayerUtils")
+local Group = require("03_mod_core/PZNS_NPCGroup")
 
 local ButtonShowLocators = ISButton:derive("ButtonShowLocators");
 local isShowingGroupMembers = false;
@@ -32,10 +33,13 @@ function ButtonShowLocators:new(x, y, width, height, title, clicktarget, onclick
 end
 
 local function updateMembersNpcs()
-    local members = PZNS_PlayerUtils.getPlayerGroup();
-    if not members then return end
-    members = members:getMembers()
     local activeNPCs = PZNS.Core.NPC.registry
+    local members = PZNS_PlayerUtils.getPlayerGroup();
+    if not members then
+        members = {}
+    else
+        members = Group.getMembers(members)
+    end
     return members, activeNPCs
 end
 

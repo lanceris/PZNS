@@ -53,7 +53,7 @@ local function calculateVisionCone(char)
         val = val - stats:getFatigue() - 0.6
         if val > -0.2 then val = -0.2 end
         if stats:getFatigue() >= 1 then val = val - 0.2 end
-        if char:getMoodles():getMoodleLevel(MoodleType.Panic) == 4 then
+        if char:getMoodles():getMoodleLevel(MoodleType.ToIndex(MoodleType.Panic)) == 4 then
             val = val - 0.2
         end
         if char:isInARoom() then
