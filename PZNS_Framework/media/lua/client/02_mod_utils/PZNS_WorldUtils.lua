@@ -125,6 +125,7 @@ local function spawnNPCIsoPlayer(npcSurvivor)
             npcIsoPlayer:removeFromSquare();
             npcIsoPlayer:removeFromWorld();
             npcSurvivor.npcIsoPlayerObject = nil;
+            PZNS_UtilsDataNPCs.PZNS_PersistToIsoPlayerMap(nil, npcSurvivor)
         end
         -- Cows: Check if the npc cannot be saved and permanently remove from game world.
         if (npcSurvivor.canSaveData == false) then

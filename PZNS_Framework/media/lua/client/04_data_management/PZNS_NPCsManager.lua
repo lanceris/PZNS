@@ -10,6 +10,7 @@ local PZNS_NPCGroup = require("03_mod_core/PZNS_NPCGroup")
 PZNS_ActiveInventoryNPC = {}; -- WIP - Cows: Need to rethink how Global variables are used...
 
 local PZNS_NPCsManager = {};
+local fmt = string.format
 
 ---Get NPC by its survivorID
 ---@param survivorID survivorID
@@ -130,6 +131,7 @@ function PZNS_NPCsManager.createNPCSurvivor(
             npcSurvivor.npcIsoPlayerObject = isoPlayer
         end
     end
+    PZNS_NPCSurvivor.__initSenses(npcSurvivor)
     return npcSurvivor;
 end
 
@@ -148,6 +150,127 @@ function PZNS_NPCsManager.setGroupID(survivorID, groupID)
     end
     PZNS_NPCSurvivor.setGroupID(npc, groupID)
 end
+
+--region relations
+---@alias _getRelationToParam {npc?:PZNS_NPCSurvivor,id?:survivorID}
+---if input is safe (survivors guaranteed to exist), set checks=false to avoid extra checks
+---@alias _getRelArgs {first:_getRelationToParam, second:_getRelationToParam, checks:boolean}
+---@alias _changeRelArgs {first:_getRelationToParam, second:_getRelationToParam, diff:integer, checks:boolean}
+
+---Get true if `first` knows `second`
+---@param args _getRelArgs
+---@return boolean
+function PZNS_NPCsManager.isNPCKnowsOther(args)
+    local first = args.first
+    local second = args.second
+    local npcFirst = first.npc or PZNS_Utils.getNPC(first.id)
+    local npcSecond = second.npc or PZNS_Utils.getNPC(second.id)
+    if args.checks then
+        if first.id and not PZNS_Utils.npcCheck(npcFirst, first.id) then return false end
+        if second.id and not PZNS_Utils.npcCheck(npcSecond, second.id) then return false end
+    end
+    if not npcFirst or not npcSecond then error("Can't proceed") end
+
+    return PZNS_NPCSurvivor.getRelationTo(npcFirst, npcSecond.survivorID) ~= nil
+end
+
+---Get true if `first` seen `second`
+---@param args _getRelArgs
+---@return boolean
+function PZNS_NPCsManager.isNPCSeenOther(args)
+    local first = args.first
+    local second = args.second
+    local npcFirst = first.npc or PZNS_Utils.getNPC(first.id)
+    local npcSecond = second.npc or PZNS_Utils.getNPC(second.id)
+    if args.checks then
+        if first.id and not PZNS_Utils.npcCheck(npcFirst, first.id) then return false end
+        if second.id and not PZNS_Utils.npcCheck(npcSecond, second.id) then return false end
+    end
+    if not npcFirst or not npcSecond then error("Can't proceed") end
+
+    return PZNS_NPCSurvivor.getAnonRelationTo(npcFirst, npcSecond.survivorID) ~= nil
+end
+
+---Change opinion of `firstSurvivorID` to `secondSurvivorID` by `diff`
+---@param args _changeRelArgs
+---@return boolean? firstMet
+function PZNS_NPCsManager.changeRelationBetween(args)
+    local first = args.first
+    local second = args.second
+    local npcFirst = first.npc or PZNS_Utils.getNPC(first.id)
+    local npcSecond = second.npc or PZNS_Utils.getNPC(second.id)
+    if args.checks then
+        if first.id and not PZNS_Utils.npcCheck(npcFirst, first.id) then return false end
+        if second.id and not PZNS_Utils.npcCheck(npcSecond, second.id) then return false end
+        if type(args.diff) ~= "number" then
+            print(fmt("Invalid diff: %s (%s)", args.diff, type(args.diff)))
+            return
+        end
+    end
+    if not npcFirst or not npcSecond then error("Can't proceed") end
+
+    return PZNS_NPCSurvivor.changeRelation(npcFirst, npcSecond.survivorID, args.diff)
+end
+
+---Change anonymous opinion of `firstSurvivorID` to `secondSurvivorID` by `diff`
+---Anonymous relation means `firstSurvivorID` haven't met `secondSurvivorID` yet (does not know name/group etc)
+---@param args _changeRelArgs
+---@return boolean? firstSeen
+function PZNS_NPCsManager.changeAnonymousRelationBetween(args)
+    local first = args.first
+    local second = args.second
+    local npcFirst = first.npc or PZNS_Utils.getNPC(first.id)
+    local npcSecond = second.npc or PZNS_Utils.getNPC(second.id)
+    if args.checks then
+        if first.id and not PZNS_Utils.npcCheck(npcFirst, first.id) then return false end
+        if second.id and not PZNS_Utils.npcCheck(npcSecond, second.id) then return false end
+        if type(args.diff) ~= "number" then
+            print(fmt("Invalid diff: %s (%s)", args.diff, type(args.diff)))
+            return
+        end
+    end
+    if not npcFirst or not npcSecond then error("Can't proceed") end
+    if PZNS_NPCSurvivor.getRelationTo(npcFirst, npcSecond.survivorID) then
+        print(fmt("NPCs already met! ID1: %s; ID2: %s", npcFirst.survivorID, npcSecond.survivorID))
+        return
+    end
+
+    return PZNS_NPCSurvivor.changeAnonRelation(npcFirst, npcSecond.survivorID, args.diff)
+end
+
+---Get opinion of `firstSurvivorID` to `secondSurvivorID`
+---@param args _getRelArgs
+---@return integer? relation
+function PZNS_NPCsManager.getRelationTo(args)
+    local first = args.first
+    local second = args.second
+    local npcFirst = first.npc or PZNS_Utils.getNPC(first.id)
+    local npcSecond = second.npc or PZNS_Utils.getNPC(second.id)
+    if args.checks then
+        if first.id then PZNS_Utils.npcCheck(npcFirst, first.id) end
+        if second.id then PZNS_Utils.npcCheck(npcSecond, second.id) end
+    end
+    if not npcFirst or not npcSecond then error("Can't proceed") end
+    return PZNS_NPCSurvivor.getRelationTo(npcFirst, npcSecond.survivorID)
+end
+
+---Get anonymous opinion of `firstSurvivorID` to `secondSurvivorID`
+---@param args _getRelArgs
+---@return integer? relation
+function PZNS_NPCsManager.getAnonRelationTo(args)
+    local first = args.first
+    local second = args.second
+    local npcFirst = first.npc or PZNS_Utils.getNPC(first.id)
+    local npcSecond = second.npc or PZNS_Utils.getNPC(second.id)
+    if args.checks then
+        if first.id then PZNS_Utils.npcCheck(npcFirst, first.id) end
+        if second.id then PZNS_Utils.npcCheck(npcSecond, second.id) end
+    end
+    if not npcFirst or not npcSecond then error("Can't proceed") end
+    return PZNS_NPCSurvivor.getAnonRelationTo(npcFirst, npcSecond.survivorID)
+end
+
+--endregion
 
 ---Cows: Get a npcSurvivor by specified survivorID
 ---@param survivorID survivorID
@@ -240,8 +363,8 @@ function PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(targetSquare, raider
     end
     -- Cows: Set the job last, otherwise the NPC will function as if it didn't have a weapon.
     PZNS_UtilsNPCs.PZNS_SetNPCJob(raiderSurvivor, "Wander In Cell")
-    local activeNPCs = PZNS.Core.NPC.registry
-    activeNPCs[raiderSurvivorID] = raiderSurvivor; -- Cows: This saves it to modData, which allows the npc to run while in-game, but does not create a save file.
+    PZNS_UtilsDataNPCs.PZNS_PersistToModData(raiderSurvivorID, raiderSurvivor) -- Cows: This saves it to modData, which allows the npc to run while in-game, but does not create a save file.
+    PZNS_UtilsDataNPCs.PZNS_PersistToIsoPlayerMap(raiderSurvivorID, raiderSurvivor)
     PZNS_UtilsDataNPCs.AddAI(raiderSurvivor)
     return raiderSurvivor;
 end
@@ -290,8 +413,8 @@ function PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare(targetSquare, survivorI
     end
     -- Cows: Set the job last, otherwise the NPC will function as if it didn't have a weapon.
     PZNS_UtilsNPCs.PZNS_SetNPCJob(npcSurvivor, "Wander In Cell")
-    local activeNPCs = PZNS.Core.NPC.registry
-    activeNPCs[npcSurvivorID] = npcSurvivor; -- Cows: This saves it to modData, which allows the npc to run while in-game, but does not create a save file.
+    PZNS_UtilsDataNPCs.PZNS_PersistToModData(survivorID, npcSurvivor) -- Cows: This saves it to modData, which allows the npc to run while in-game, but does not create a save file.
+    PZNS_UtilsDataNPCs.PZNS_PersistToIsoPlayerMap(survivorID, npcSurvivor)
     PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
     return npcSurvivor;
 end
@@ -301,8 +424,16 @@ end
 function PZNS_NPCsManager.PZNS_CleanUpNPCData(isoGameCharacter)
     if not instanceof(isoGameCharacter, "IsoPlayer") then return end
     ---@cast isoGameCharacter IsoPlayer
-    local npcSurvivor = PZNS_NPCsManager.findNPCByIsoObject(isoGameCharacter)
+    local npcSurvivor = PZNS.Core.NPC.IsoPlayerRegistry[isoGameCharacter]
     if not npcSurvivor or npcSurvivor.isPlayer == true then return end
+    if npcSurvivor.lastAttackedBy then
+        local npcAttacker = PZNS.Core.NPC.IsoPlayerRegistry[npcSurvivor.lastAttackedBy]
+        if npcAttacker then
+            npcAttacker.brain.survivorKills = npcAttacker.brain.survivorKills + 1
+            print(string.format("KILLED %s SURVIVORS SO FAR", npcAttacker.brain.survivorKills))
+            npcAttacker.npcIsoPlayerObject:setSurvivorKills(npcAttacker.brain.survivorKills)
+        end
+    end
     -- remove from faction
     -- NPC.unsetFactionID(npcSurvivor)
     -- remove from group

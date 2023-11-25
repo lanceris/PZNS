@@ -66,7 +66,7 @@ end
 ---comment
 ---@param context any
 ---@param worldobjects any
----@param playerSurvivor NPC
+---@param playerSurvivor PZNS_NPCSurvivor
 function PZNS.Context.ZonesOptions(context, worldobjects, playerSurvivor)
     --
     local zonesSubMenu_1 = context:getNew(context);

@@ -6,6 +6,7 @@ local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs");
 local PZNS_UtilsNPCs = require("02_mod_utils/PZNS_UtilsNPCs");
 local PZNS_WorldUtils = require("02_mod_utils/PZNS_WorldUtils");
 local PZNS_NPCsManager = require("04_data_management/PZNS_NPCsManager")
+local PZNS_SystemsManager = require("11_events_spawning/systems/PZNS_SystemsManager")
 
 Events.EveryOneMinute.Add(PZNS.AI._updateEveryXGameMinutes)
 Events.OnTick.Add(PZNS.AI._updateOnTick)
@@ -45,6 +46,8 @@ local function PZNS_Events()
     -- Events.OnRenderTick.Add(PZNS_RenderNPCsText);
     -- Unregister updates for NPC and clean-up data
     Events.OnCharacterDeath.Add(PZNS_NPCsManager.PZNS_CleanUpNPCData)
+    -- Track sounds for NPCs to react
+    Events.OnWorldSound.Add(PZNS_SystemsManager.PZNS_SoundManager)
 end
 
 Events.OnGameStart.Add(PZNS_Events);

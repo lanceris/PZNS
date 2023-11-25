@@ -6,9 +6,9 @@ local PZNS_NPCGroupsManager
 local PZNS_DebuggerUtils = {};
 
 -- Cows: Use this function to write a line to a text file, this is useful to identify when and how many times a function is called.
----@param fileName any
----@param isEnabled any
----@param newLine any
+---@param fileName string
+---@param isEnabled boolean
+---@param newLine string
 function PZNS_DebuggerUtils.CreateLogLine(fileName, isEnabled, newLine)
     if (isEnabled) then
         local timestamp = os.time();

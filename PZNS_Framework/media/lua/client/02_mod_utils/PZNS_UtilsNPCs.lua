@@ -6,10 +6,11 @@
 --TODO: probably remove all setters for npcSurvivor and leave only handlers for IsoPlayer
 local PZNS_UtilsNPCs = {};
 --- Cows: Add a specified trait to the target npcSurvivor.
----@param npcSurvivor PZNS_NPCSurvivor
+---@param npcSurvivor PZNS_NPCSurvivor?
 ---@param traitName string
----@return any
+---@return PZNS_NPCSurvivor? npcSurvivor
 function PZNS_UtilsNPCs.PZNS_AddNPCSurvivorTraits(npcSurvivor, traitName)
+    if not npcSurvivor then return end
     local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
     if (npcIsoPlayer == nil) then
         return;

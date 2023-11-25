@@ -96,7 +96,7 @@ function PZNS_UpdateAllJobsRoutines()
 end
 
 ---Update job routine for specific NPC
----@param npc NPC
+---@param npc PZNS_NPCSurvivor
 function PZNS.AI.UpdateJobRoutineFor(npc)
     PZNS_UpdateNPCJobRoutine(npc)
 end

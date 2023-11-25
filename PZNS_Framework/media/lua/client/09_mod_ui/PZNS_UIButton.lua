@@ -97,9 +97,9 @@ local function reload(key)
         -- if not weapon then weapon = InventoryItemFactory.CreateItem("Base.BareHands") end
         -- PZNS_CombatUtils.PZNS_CalculatePlayerDamage(playerNPC.npcIsoPlayerObject, cur.npcIsoPlayerObject,
         --     weapon, 1)
-        local npc = PZNS_NPCsManager.spawnRandomNPCSurvivorAtSquare(clickedOnSquare)
+        local npc = PZNS_NPCsManager.spawnRandomRaiderSurvivorAtSquare(clickedOnSquare)
         -- PZNS_UtilsNPCs.PZNS_SetNPCFollowTargetID(npc, playerNPC.survivorID);
-        PZNS_NPCGroupsManager.addNPCToGroup(npc, playerNPC.groupID)
+        -- PZNS_NPCGroupsManager.addNPCToGroup(npc, playerNPC.groupID)
         PZNS_UtilsNPCs.PZNS_SetNPCJob(npc, "Guard")
     end
 end

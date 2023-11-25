@@ -40,7 +40,7 @@ local function calculateNPCDamage(npcIsoPlayer, victim, weapon)
 end
 
 --- Cows: Helper function for NPCs doing melee attack
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param npcIsoPlayer IsoPlayer
 ---@param targetObject IsoPlayer | IsoZombie
 local function meleeAttack(npcSurvivor, npcIsoPlayer, targetObject, weapon)
@@ -57,7 +57,7 @@ local function meleeAttack(npcSurvivor, npcIsoPlayer, targetObject, weapon)
 end
 
 --- Cows: Helper function for NPCs doing ranged attack
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param npcIsoPlayer IsoPlayer
 ---@param targetObject IsoPlayer | IsoZombie
 local function rangedAttack(npcSurvivor, npcIsoPlayer, targetObject, weapon)
@@ -74,7 +74,7 @@ local function rangedAttack(npcSurvivor, npcIsoPlayer, targetObject, weapon)
 end
 
 --- Cows: Main function for NPCs attacking
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_WeaponAttack(npcSurvivor)
     if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npcSurvivor) == false) then
         return;
@@ -131,7 +131,7 @@ function PZNS_WeaponAttack(npcSurvivor)
 end
 
 --- Cows: Based on "SuperSurvivorsOnSwing()"
----@param isoPlayer any
+---@param isoPlayer IsoPlayer
 ---@param playerWeapon  HandWeapon
 local function rangeWeaponHandler(isoPlayer, playerWeapon)
     -- Cows: Infinite Ammo check
@@ -157,7 +157,7 @@ end
 
 --- Cows: The NPC plays the animation/action of attacking with weapon swing, which triggers the event "OnWeaponSwing".
 ---@param isoPlayer IsoPlayer
----@param playerWeapon any
+---@param playerWeapon HandWeapon
 function PZNS_WeaponSwing(isoPlayer, playerWeapon)
     -- These weapon swing rules only applies to NPCs.
     if (isoPlayer:getIsNPC() ~= true) then

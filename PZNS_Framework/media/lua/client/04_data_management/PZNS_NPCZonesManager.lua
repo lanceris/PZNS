@@ -1,17 +1,12 @@
 local PZNS_NPCZonesManager = {};
 
-local Zone = require("03_mod_core/PZNS_NPCZone")
-
----get zone by ID
----@param zoneID zoneID
-local function getZone(zoneID)
-    return PZNS.Core.Zone.registry[zoneID]
-end
+local PZNS_Utils = require("02_mod_utils/PZNS_Utils")
+local PZNS_NPCZone = require("03_mod_core/PZNS_NPCZone")
 
 ---comment
----@param groupID any
----@param zoneType any
----@return table
+---@param groupID groupID
+---@param zoneType string
+---@return Zone zone
 function PZNS_NPCZonesManager.createZone(
     groupID,
     zoneType,
@@ -20,9 +15,9 @@ function PZNS_NPCZonesManager.createZone(
 )
     local zone
     zoneID = zoneID or groupID .. "_" .. zoneType
-    local existingZone = getZone(zoneID)
+    local existingZone = PZNS_Utils.getZone(zoneID)
     if not existingZone then
-        zone = Zone:new(zoneID, name, groupID, zoneType);
+        zone = PZNS_NPCZone:new(zoneID, name, groupID, zoneType);
         PZNS.Core.Zone.registry[zone.zoneID] = zone
     else
         zone = existingZone
@@ -31,7 +26,7 @@ function PZNS_NPCZonesManager.createZone(
 end
 
 --- Cows: Get a zone by the input groupID.
----@param groupID string
+---@param groupID groupID
 function PZNS_NPCZonesManager.getZonesByGroupID(groupID)
     local activeZones = PZNS.Core.Zone.registry
     local groupZones = {};

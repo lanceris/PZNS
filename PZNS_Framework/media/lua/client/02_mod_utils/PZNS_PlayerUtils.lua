@@ -1,4 +1,5 @@
 require("03_mod_core/init")
+local PZNS_UtilsDataNPCs = require("02_mod_utils/PZNS_UtilsDataNPCs")
 
 local PZNS_PlayerUtils = {};
 local PZNS_NPCsManager --TODO: refactor, utils should not use managers
@@ -30,7 +31,9 @@ local function createLocalPlayerNPCSurvivor(playerIsoObject)
         error("Something went wrong, can't access player object")
     end
     npcSurvivor.npcIsoPlayerObject:getModData().survivorID = survivorID
-    PZNS.Core.NPC.registry[survivorID] = npcSurvivor
+    PZNS_UtilsDataNPCs.PZNS_PersistToModData(survivorID, npcSurvivor)
+    PZNS_UtilsDataNPCs.PZNS_PersistToIsoPlayerMap(survivorID, npcSurvivor)
+    PZNS_NPCSurvivor.__initSenses(npcSurvivor)
     return npcSurvivor
 end
 
@@ -123,7 +126,7 @@ end
 
 --- Cows: Add a specified player to a specified group
 ---@param mpPlayerID number
----@param groupID any
+---@param groupID groupID
 function PZNS_PlayerUtils.PZNS_AddPlayerToGroup(mpPlayerID, groupID)
     if not PZNS_NPCGroupsManager then
         PZNS_NPCGroupsManager = require("04_data_management/PZNS_NPCGroupsManager")
@@ -139,7 +142,7 @@ end
 
 --- Cows: Remove the  specified player from the specified group
 ---@param mpPlayerID number
----@param groupID any
+---@param groupID groupID
 function PZNS_PlayerUtils.PZNS_RemovePlayerFromGroup(mpPlayerID, groupID)
     local group = PZNS_NPCGroupsManager.getGroupByID(groupID);
     local stringID = "player" .. tostring(mpPlayerID);

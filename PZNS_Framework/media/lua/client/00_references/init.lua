@@ -13,6 +13,8 @@ PZNS.Core.Zone = {}
 
 ---@type table<survivorID, PZNS_NPCSurvivor>
 PZNS.Core.NPC.registry = {}
+---@type table<IsoPlayer, PZNS_NPCSurvivor>
+PZNS.Core.NPC.IsoPlayerRegistry = {}
 ---@type table<groupID, PZNS_NPCGroup>
 PZNS.Core.Group.registry = {}
 ---@type table<factionID, PZNS_NPCFaction>

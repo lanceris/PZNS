@@ -1,6 +1,5 @@
 require("00_references/init")
 local fmt = string.format
-local unpack = unpack
 
 local updOnTick = {}
 local updOneMinute = {}
@@ -22,7 +21,7 @@ function PZNS.AI._updateOnTick()
         if not val.cur then val.cur = ms end
         if ms >= val.cur + val.rate then
             val.cur = ms
-            val.func(unpack(val.args))
+            val.func(val.args[1], val.args[2], val.args[3], val.args[4])
         end
     end
 end
@@ -30,7 +29,7 @@ end
 function PZNS.AI._updateOnRenderTick()
     for i = 1, #updRenderTick do
         local val = updRenderTick[i]
-        val.func(unpack(val.args))
+        val.func(val.args[1], val.args[2], val.args[3], val.args[4])
     end
 end
 
@@ -53,7 +52,7 @@ function PZNS.AI._updateEveryXGameMinutes()
             toRun = true
         end
         if toRun then
-            val.func(unpack(val.args))
+            val.func(val.args[1], val.args[2], val.args[3], val.args[4])
         end
     end
 end
@@ -101,7 +100,7 @@ function PZNS.AI.AddToSchedule(event, name, func, rate, args)
         rate = tonumber(rate),
         args = args,
     }
-    print(fmt("Added '%s' to '%s' schedule", name, event))
+    -- print(fmt("Added '%s' to '%s' schedule", name, event))
 end
 
 function PZNS.AI.UpdateScheduleRate(event, name, rate)
@@ -126,7 +125,7 @@ function PZNS.AI.UpdateScheduleRate(event, name, rate)
         print(fmt("Changed rate from %s to %s", existing.rate, rate))
         existing.rate = tonumber(rate)
     end
-    print(fmt("Updated '%s' in '%s' schedule", name, event))
+    -- print(fmt("Updated '%s' in '%s' schedule", name, event))
 end
 
 ---comment
@@ -138,11 +137,11 @@ function PZNS.AI.RemoveFromSchedule(event, name)
     for i = 1, #schedule do
         if name == schedule[i].name then
             table.remove(schedule, i)
-            print(fmt("Removed '%s' from '%s' schedule", name, event))
+            -- print(fmt("Removed '%s' from '%s' schedule", name, event))
             return
         end
     end
-    print(fmt("'%s' not found for event '%s'!", name, event))
+    -- print(fmt("'%s' not found for event '%s'!", name, event))
 end
 
 function PZNS.AI.GetScheduledFor(event, asStr)
@@ -176,13 +175,13 @@ function PZNS.AI.ClearSchedule(event)
     local schedule = map[event]
     local total = #schedule
     table.wipe(map[event])
-    print(fmt("Removed %s functions for '%s' event", total, event))
+    -- print(fmt("Removed %s functions for '%s' event", total, event))
 end
 
 function PZNS.AI.ClearAllEvents()
     for event, schedule in pairs(map) do
         local total = #schedule
         table.wipe(schedule)
-        print(fmt("Removed %s functions for '%s' event", total, event))
+        -- print(fmt("Removed %s functions for '%s' event", total, event))
     end
 end

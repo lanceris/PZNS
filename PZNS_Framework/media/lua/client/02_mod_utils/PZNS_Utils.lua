@@ -38,6 +38,13 @@ PZNS_Utils.getGroup = function(groupID)
 end
 
 
+---get zone by ID
+---@param zoneID zoneID
+PZNS_Utils.getZone = function(zoneID)
+    return PZNS.Core.Zone.registry[zoneID]
+end
+
+
 ---@param factionID factionID
 ---@return PZNS_NPCFaction?
 PZNS_Utils.getFaction = function(factionID)

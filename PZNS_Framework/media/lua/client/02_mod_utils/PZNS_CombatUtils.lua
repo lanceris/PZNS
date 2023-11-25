@@ -105,7 +105,7 @@ function PZNS_CombatUtils.canSee(observant, observed, maxDistance)
     return dot > -cone
 end
 
----@param targetObject any
+---@param targetObject IsoMovingObject
 ---@return boolean isValid true if `targetObject` is not instance of IsoGameCharacter
 function PZNS_CombatUtils.PZNS_IsTargetInvalidForDamage(targetObject)
     -- Cows: If targetObject is not an IsoPlayer or IsoZombie, it is invalid for damage.
@@ -522,6 +522,9 @@ function PZNS_CombatUtils.PZNS_CalculatePlayerDamage(wielder, victim, weapon, da
     --endregion
 
     --apply damage to body part
+    victim:setAttackedBy(wielder)
+    npcSurvivorVictim.lastAttackedBy = npcSurvivorWielder.npcIsoPlayerObject
+    victim:setHitReaction("PZNSHit")
     bodydamage:AddDamage(partIndex, bodypartDamage)
     if bodypart:getHealth() <= 0 then
         -- if part health <= 0 and part is vital - kill
@@ -529,7 +532,6 @@ function PZNS_CombatUtils.PZNS_CalculatePlayerDamage(wielder, victim, weapon, da
         if lethalParts[BodyPartType.ToString(bodyPartType)] then
             bodydamage:ReduceGeneralHealth(110)
             -- this will update internal state of victim
-            bodydamage:Update()
         end
     end
 

@@ -254,7 +254,7 @@ function PZNS_GeneralAI.PZNS_CheckForThreats(npcSurvivor)
 end
 
 ---comments
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 ---@param value integer
 local function updateAIRate(npcSurvivor, value)
     if npcSurvivor.AIUpdateRate == value then return end

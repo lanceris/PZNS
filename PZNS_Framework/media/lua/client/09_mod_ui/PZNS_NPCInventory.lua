@@ -33,6 +33,7 @@ function PZNS_AddNPCInv(page, step)
         end
     end
 end
+
 ---comment
 ---@param npcIsoPlayer any
 ---@param items any
@@ -195,7 +196,7 @@ function PZNS_NPCInventoryContext(player, context, items)
             context2 = subMenu;
 
             local location = itemExtraOption:IsClothing() and itemExtraOption:getBodyLocation() or
-            itemExtraOption:canBeEquipped();
+                itemExtraOption:canBeEquipped();
             local existingItem = getWornItemInLocation(npcIsoPlayer, location);
 
             if existingItem ~= itemExtraOption then
@@ -227,23 +228,28 @@ function PZNS_NPCInventoryContext(player, context, items)
     end
     --
     if hairDye and npcIsoPlayer:getHumanVisual():getHairModel() and npcIsoPlayer:getHumanVisual():getHairModel() ~= "Bald" then
-        context:addOption(getText("ContextMenu_PZNS_NPCDyeHair"), hairDye, ISInventoryPaneContextMenu.onDyeHair, npcIsoPlayer, false);
+        context:addOption(getText("ContextMenu_PZNS_NPCDyeHair"), hairDye, ISInventoryPaneContextMenu.onDyeHair,
+            npcIsoPlayer, false);
     end
     --
     if hairDye and npcIsoPlayer:getHumanVisual():getBeardModel() and npcIsoPlayer:getHumanVisual():getBeardModel() ~= "" then
-        context:addOption(getText("ContextMenu_PZNS_NPCDyeBeard"), hairDye, ISInventoryPaneContextMenu.onDyeHair, npcIsoPlayer, true);
+        context:addOption(getText("ContextMenu_PZNS_NPCDyeBeard"), hairDye, ISInventoryPaneContextMenu.onDyeHair,
+            npcIsoPlayer, true);
     end
     --
     if bothHandsItem then
-        context:addOption(getText("ContextMenu_PZNS_NPCEquipBothHands"), npcIsoPlayer, NPCEquipWeapon, bothHandsItem, true, true);
+        context:addOption(getText("ContextMenu_PZNS_NPCEquipBothHands"), npcIsoPlayer, NPCEquipWeapon, bothHandsItem,
+            true, true);
     end
     --
     if primaryHandItem then
-        context:addOption(getText("ContextMenu_PZNS_NPCEquipPrimary"), npcIsoPlayer, NPCEquipWeapon, primaryHandItem, true, false);
+        context:addOption(getText("ContextMenu_PZNS_NPCEquipPrimary"), npcIsoPlayer, NPCEquipWeapon, primaryHandItem,
+            true, false);
     end
     --
     if secondaryHandItem then
-        context:addOption(getText("ContextMenu_PZNS_NPCEquipSecondary"), npcIsoPlayer, NPCEquipWeapon, secondaryHandItem, false, false);
+        context:addOption(getText("ContextMenu_PZNS_NPCEquipSecondary"), npcIsoPlayer, NPCEquipWeapon, secondaryHandItem,
+            false, false);
     end
     --
     context:addOption(getText("ContextMenu_PZNS_NPCDropItem"), npcIsoPlayer, NPCDrop, items);
@@ -252,6 +258,7 @@ function PZNS_NPCInventoryContext(player, context, items)
         context:addOption(getText("ContextMenu_PZNS_NPCUnquipItem"), npcIsoPlayer, NPCUnequip, items);
     end
 end
+
 --
 local temp = ISInventoryPane.transferItemsByWeight;
 function ISInventoryPane:transferItemsByWeight(items, container)
@@ -273,6 +280,7 @@ function ISInventoryPane:transferItemsByWeight(items, container)
         temp(self, items, container);
     end
 end
+
 --
 local temp2 = ISInventoryPaneContextMenu.dropItem;
 ISInventoryPaneContextMenu.dropItem = function(item, player)

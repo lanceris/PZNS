@@ -30,7 +30,7 @@ require("00_references/init")
 ---@field actionTicks integer                 Cows: This is a value used to determine the frequency of an action being called, most notably with multi-stage actions (such as reloading).
 ---@field attackTicks integer                 Cows: I thought it was stupid at first, but after observing an NPC queue up 20+ attacks in a a single frame...
 ---@field speechTicks integer                 Cows: Tracks the ticks between speech text... ticks are inconsistent, but there are currently no other short duration timers.
----@field aimTarget IsoGameCharacter?         Cows: Used to identify the object the NPC is to aim at... but Java API has a "NPCSetAiming()" call which is confusing...
+---@field aimTarget IsoPlayer|IsoZombie?      Cows: Used to identify the object the NPC is to aim at... but Java API has a "NPCSetAiming()" call which is confusing...
 ---@field canAttack boolean                   Cows: Added to prevent NPCs from taking attacking actions; Java API has a "NPCSetAttack()" call which is confusing; as it appears to force the NPC to attack.
 ---@field canSaveData boolean                 WIP - Cows: Added this flag to determine if NPC can be saved via data management.
 ---@field textObject TextDrawObject?          Cows: This should handle all the text displayed by the NPC. Not used if `isPlayer=true`
@@ -54,6 +54,8 @@ require("00_references/init")
 ---@field AIDefaultUpdateRate integer Initial update rate for NPC AI in milliseconds
 ---@field AIUpdateRate integer        Update rate for NPC AI in milliseconds
 ---@field AIScheduleName string       Name of scheduled AI update task for this NPC
+---@field brain table
+---@field lastAttackedBy IsoGameCharacter Last attacker
 local PZNS_NPCSurvivor = {}
 
 --- Cows: Construct the PZNS_NPCSurvivor.
@@ -97,7 +99,7 @@ function PZNS_NPCSurvivor:new(
         actionTicks = 0,
         attackTicks = 0,
         speechTicks = 0,
-        aimTarget = "",
+        aimTarget = nil,
         canAttack = true,
         canSaveData = true,
         textObject = nil,
@@ -121,13 +123,44 @@ function PZNS_NPCSurvivor:new(
         --- AI ---
         AIDefaultUpdateRate = 50,
         AIUpdateRate = 50,
-        AIScheduleName = nil
+        AIScheduleName = nil,
+        --- Sensor data (vision, hearing, internal state)
+        brain = {},
+        lastAttackedBy = nil
     };
 
     setmetatable(npcSurvivor, self);
     self.__index = self;
 
     return npcSurvivor;
+end
+
+function PZNS_NPCSurvivor:__initSenses()
+    local player = self.npcIsoPlayerObject
+    if not player then
+        print("NPC IsoPlayer not found!")
+        return
+    end
+    if not self.brain then self.brain = {} end
+
+    self.brain.spottedList = player:getSpottedList()
+    self.brain.lastSpotted = player:getLastSpotted()
+    self.brain.lastHeardSound = {} --player:getLastHeardSound()
+    self.brain.pbf = player:getPathFindBehavior2()
+    self.brain.stats = player:getStats()
+    self.brain.moodles = player:getMoodles()
+    self.brain.bodyDamage = player:getBodyDamage()
+    self.brain.survivorKills = player:getSurvivorKills()
+    print("Initialised sensoric data for ", self.survivorName)
+end
+
+function PZNS_NPCSurvivor:__updateKnowledge()
+    local player = self.npcIsoPlayerObject
+    self.brain.mapKnowledge = player:getMapKnowledge()
+    self.brain.readBooks = player:getAlreadyReadBook()
+    self.brain.knownRecipes = player:getKnownRecipes()
+    self.brain.traits = player:getTraits()
+    self.brain.perks = player:getPerkList()
 end
 
 ---Assigns groupID to NPC

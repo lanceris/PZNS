@@ -99,7 +99,7 @@ function PZNS_RenderNPCsText()
 end
 
 ---comment
----@param npc NPC
+---@param npc PZNS_NPCSurvivor
 function PZNS_RenderNPCsTextFor(npc)
     if (PZNS_UtilsNPCs.IsNPCSurvivorIsoPlayerValid(npc) == true) then
         if (npc.textObject) then

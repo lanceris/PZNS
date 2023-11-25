@@ -6,12 +6,7 @@ require("00_references/init")
 require("11_events_spawning/PZNS_EventManager")
 -- Cows: This variable should never be referenced directly, but through the corresponding management functions.
 local PZNS_UtilsDataNPCs = {};
-
---- Cows: Gets or creates the moddata for NPCs
-function PZNS_UtilsDataNPCs.PZNS_GetCreateActiveNPCsModData()
-    PZNS_ActiveNPCs = ModData.getOrCreate("PZNS_ActiveNPCs");
-    return PZNS_ActiveNPCs;
-end
+PZNS_NPCSurvivor = require("03_mod_core/PZNS_NPCSurvivor")
 
 --- Cows: Load NPCs Data
 --- Cows: Need to account for inventory, traits, skills, and all the other mod-related data...
@@ -72,11 +67,19 @@ function PZNS_UtilsDataNPCs.PZNS_CreateNPCSurvivorDescObject(
     return survivorDescObject;
 end
 
+function PZNS_UtilsDataNPCs.PZNS_PersistToModData(npcSurvivorID, npcSurvivor)
+    PZNS.Core.NPC.registry[npcSurvivorID] = npcSurvivor
+end
+
+function PZNS_UtilsDataNPCs.PZNS_PersistToIsoPlayerMap(npcSurvivorID, npcSurvivor)
+    PZNS.Core.NPC.IsoPlayerRegistry[npcSurvivor.npcIsoPlayerObject] = PZNS.Core.NPC.registry[npcSurvivorID]
+end
+
 --- Cows: Save NPC data to moddata and save folder data.
 --- Cows: Currently using the Java API for IsoPlayer:save() to save the data to the zomboid/sandbox/save/<folder>
 --- https://projectzomboid.com/modding/zombie/characters/IsoPlayer.html#save()
 ---@param npcSurvivorID survivorID
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_UtilsDataNPCs.PZNS_SaveNPCData(npcSurvivorID, npcSurvivor)
     if (npcSurvivor == nil) then
         return nil;
@@ -100,7 +103,8 @@ function PZNS_UtilsDataNPCs.PZNS_SaveNPCData(npcSurvivorID, npcSurvivor)
         end
     end
     -- Moddata Saving
-    PZNS.Core.NPC.registry[npcSurvivorID] = npcSurvivor;
+    PZNS_UtilsDataNPCs.PZNS_PersistToModData(npcSurvivorID, npcSurvivor)
+    PZNS_UtilsDataNPCs.PZNS_PersistToIsoPlayerMap(npcSurvivorID, npcSurvivor)
 end
 
 --- Cows: Save ALL ActiveNPCs Data
@@ -118,8 +122,8 @@ end
 
 --- Cows: Spawn the npcs from moddata after loading saved data from the save folder.
 --- Spawn IsoPlayer based on NPC params
----@param npcSurvivor NPC
----@return NPC? npcSurvivor
+---@param npcSurvivor PZNS_NPCSurvivor
+---@return PZNS_NPCSurvivor? npcSurvivor
 function PZNS_UtilsDataNPCs.PZNS_SpawnNPCFromModData(npcSurvivor)
     if (npcSurvivor == nil) then
         return;
@@ -156,18 +160,21 @@ function PZNS_UtilsDataNPCs.PZNS_SpawnNPCFromModData(npcSurvivor)
         npcSurvivor.isSpawned = true;
         -- schedule AI updates for npc
         PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
+        PZNS_NPCSurvivor.__initSenses(npcSurvivor)
+        PZNS_UtilsDataNPCs.PZNS_PersistToIsoPlayerMap(npcSurvivorID, npcSurvivor)
     end
 
     return npcSurvivor;
 end
 
 ---Cows: Helper function for removing specified npc moddata and save file.
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_UtilsDataNPCs.PZNS_RemoveNPCSaveData(npcSurvivor)
     if (npcSurvivor ~= nil) and npcSurvivor.isPlayer == false then
         PZNS.Core.NPC.registry[npcSurvivor.survivorID] = nil;
         local npcIsoPlayer = npcSurvivor.npcIsoPlayerObject;
         if (npcIsoPlayer ~= nil) then
+            PZNS_UtilsDataNPCs.PZNS_PersistToIsoPlayerMap(nil, npcSurvivor)
             npcIsoPlayer:removeSaveFile();
         end
     end
@@ -180,9 +187,9 @@ function PZNS_UtilsDataNPCs.PZNS_ClearNPCModData()
 end
 
 ---Register AI handlers for NPC
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
-    print("Adding AI triggers for" .. npcSurvivor.survivorID)
+    -- print("Adding AI triggers for" .. npcSurvivor.survivorID)
     local scheduleName = "MainUpdate_" .. npcSurvivor.survivorID
     local updRate = PZNS.Options.NPCAIUpdateRateByState[npcSurvivor.jobName] or npcSurvivor.AIDefaultUpdateRate
     npcSurvivor.AIUpdateRate = updRate
@@ -192,9 +199,9 @@ function PZNS_UtilsDataNPCs.AddAI(npcSurvivor)
 end
 
 ---Unregister AI handlers for NPC
----@param npcSurvivor NPC
+---@param npcSurvivor PZNS_NPCSurvivor
 function PZNS_UtilsDataNPCs.RemoveAI(npcSurvivor)
-    print("Removing AI triggers for" .. npcSurvivor.survivorID)
+    -- print("Removing AI triggers for" .. npcSurvivor.survivorID)
     local scheduleName = "MainUpdate_" .. npcSurvivor.survivorID
     PZNS.AI.RemoveFromSchedule("OnTick", scheduleName)
     PZNS.AI.RemoveFromSchedule("OnRenderTick", scheduleName)
